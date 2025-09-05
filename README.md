@@ -51,5 +51,4 @@ ros2 pkg create --build-type ament_cmake <パッケージ名>
 [https://amuratakamitamu.github.io/ros2humble_tutorial_translate/](https://amuratakamitamu.github.io/ros2humble_tutorial_translate/)
 
 ## ライセンス
-
 未定
