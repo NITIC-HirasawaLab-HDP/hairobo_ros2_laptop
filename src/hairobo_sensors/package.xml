@@ -1,21 +1,31 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>test_camera</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <name>hairobo_sensors</name>
+  <version>1.0.0</version>
+  <description>Sensor nodes (cameras, LiDAR) for Hairobo remote control robot system</description>
   <maintainer email="keikei12261226@gmail.com">hiraken</maintainer>
-  <license>TODO: License declaration</license>
-
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  
+  <!-- Core ROS 2 dependencies -->
   <build_depend>rclcpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>opencv4</build_depend>
-
   <exec_depend>rclcpp</exec_depend>
+  
+  <!-- Message dependencies -->
+  <build_depend>sensor_msgs</build_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <depend>std_msgs</depend>
+  
+  <!-- OpenCV and image processing dependencies -->
+  <build_depend>opencv4</build_depend>
   <exec_depend>opencv4</exec_depend>
+  <depend>cv_bridge</depend>
+  <depend>image_transport</depend>
+  
+  <!-- Custom message dependencies -->
+  <depend>hairobo_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

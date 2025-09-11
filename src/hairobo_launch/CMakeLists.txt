@@ -7,8 +7,12 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(launch REQUIRED)
-find_package(launch_ros REQUIRED)
+
+# Install launch files
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

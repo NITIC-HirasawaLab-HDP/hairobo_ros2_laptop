@@ -3,7 +3,7 @@
 <package format="3">
   <name>hairobo_msgs</name>
   <version>1.0.0</version>
-  <description>Custom message definitions for the Hairobo remote control robot system</description>
+  <description>Custom message and service definitions for the Hairobo remote control robot system</description>
   <maintainer email="hairobo@example.com">Hairobo Development Team</maintainer>
   <license>MIT</license>
 

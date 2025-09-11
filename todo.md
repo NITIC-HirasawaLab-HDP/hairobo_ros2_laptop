@@ -10,10 +10,13 @@
 ### ワークスペース環境構築
 - [x] srcディレクトリのパッケージ整理 (2025/09/11)
   - 不要なパッケージ（robot_interfaces, rviz_config, hairobo_simulation）を削除
-  - hairobo_controller, test_cameraを保持
-  - hairobo_launch, teleop_logic_nodeを保持
+  - パッケージ名を仕様書に準拠して変更：
+    - teleop_logic_node → hairobo_teleop
+    - test_camera → hairobo_sensors  
+    - hairobo_controller → hairobo_driver
 - [ ] CMakeLists.txt設定
-- [ ] package.xml依存関係定義
+- [x] package.xml依存関係定義 (2025/09/11)
+- [x] パッケージ名整備 (2025/09/11)
 - [ ] 開発環境整備（linter, formatter設定）
 
 ## フェーズ2: パッケージ作成
@@ -24,7 +27,7 @@
   - [ ] サービス型定義
 
 ### 操作用PC側パッケージ
-- [ ] hairobo_teleop パッケージ作成
+- [x] hairobo_teleop パッケージ作成
   - [ ] ジョイスティック入力処理
   - [ ] 速度指令生成ロジック
 - [ ] hairobo_visualization パッケージ作成
@@ -33,16 +36,16 @@
 - [ ] hairobo_slam パッケージ作成
   - [ ] SLAM設定ファイル
   - [ ] マップ保存・読み込み機能
-- [ ] hairobo_launch パッケージ作成
+- [x] hairobo_launch パッケージ作成
   - [ ] PC側統合起動ファイル
   - [ ] 設定パラメータファイル
 
 ### Raspberry Pi側パッケージ
-- [ ] hairobo_sensors パッケージ作成
+- [x] hairobo_sensors パッケージ作成
   - [ ] カメラノード実装
   - [ ] LiDARドライバー統合
   - [ ] センサーキャリブレーション
-- [ ] hairobo_driver パッケージ作成
+- [x] hairobo_driver パッケージ作成
   - [ ] モーター制御ドライバー
   - [ ] ハードウェア抽象化レイヤー
 - [ ] hairobo_bringup パッケージ作成
@@ -135,6 +138,6 @@
 
 ---
 ## 注意事項
-- 各タスク完了時は完了日を記入してチェックを入れる
+- 各タスク完了時は完了日と時刻を記入してチェックを入れる
 - 問題が発生した場合は該当箇所にメモを追記する
 - 設計変更があった場合はspec.mdとREADME.mdも合わせて更新する
