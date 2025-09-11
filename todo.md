@@ -3,11 +3,15 @@
 ## フェーズ1: プロジェクト基盤構築
 ### 設計・仕様策定
 - [x] 要件定義書にパッケージ構成を追記 (2025/09/11)
-- [ ] メッセージ型定義設計
+- [x] メッセージ型定義設計 (2025/09/11)
 - [ ] ノード間通信仕様定義
 - [ ] ハードウェア接続仕様確認
 
 ### ワークスペース環境構築
+- [x] srcディレクトリのパッケージ整理 (2025/09/11)
+  - 不要なパッケージ（robot_interfaces, rviz_config, hairobo_simulation）を削除
+  - hairobo_controller, test_cameraを保持
+  - hairobo_launch, teleop_logic_nodeを保持
 - [ ] CMakeLists.txt設定
 - [ ] package.xml依存関係定義
 - [ ] 開発環境整備（linter, formatter設定）
