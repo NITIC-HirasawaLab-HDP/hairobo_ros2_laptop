@@ -24,10 +24,10 @@
 -   **コントローラー**: DUALSHOCK 4 (操作用PCにUSB接続)
 -   **制御マイコン**: STM32 Nucleo (CAN通信で指令を受信し、モータードライバを制御)
 -   **親機センサー**:
-    -   USB Webカメラ x 2
+    -   USB Webカメラ x 2 (前方・後方)
     -   2D LiDARセンサー (USB接続)
 -   **子機センサー**:
-    -   USB Webカメラ x 2
+    -   USB Webカメラ x 2 (前方・後方)
 -   **アクチュエータ**:
     -   親機用モーター (STM32 Nucleo経由で制御) x 2
     -   子機用モーター (STM32 Nucleo経由で制御) x 2
@@ -40,18 +40,40 @@
 
 <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/board/OCDismRVuq7uSEGfK4WbfH/Hairobo_ROS2_diagram?node-id=0-1&embed-host=share" allowfullscreen></iframe>
 
-#### 2.2.1 操作用PC上のノード
+#### 2.2.1 操作用PC側パッケージ構成
+
+**hairobo_teleop パッケージ**
 -   **joy_node**: DUALSHOCK 4の入力を`/joy`トピックとして配信する。
 -   **teleop_logic_node**: `/joy`を購読し、操作モードに応じて各指令トピックを配信する。
+
+**hairobo_visualization パッケージ**
 -   **rviz2**: 各種センサーデータ、地図、ロボットの状態を統合的に可視化する。
--   **slam_toolbox_node**: RPiから送られてくるセンサー情報に基づき、SLAM（自己位置推定と地図作成）を実行する。
 -   **image_transport/republish**: RPiから送られてくる圧縮画像を展開し、RViz2で表示可能なraw画像に変換する。
 
-#### 2.2.2 Raspberry Pi上のノード
+**hairobo_slam パッケージ**
+-   **slam_toolbox_node**: RPiから送られてくるセンサー情報に基づき、SLAM（自己位置推定と地図作成）を実行する。
+
+**hairobo_launch パッケージ**
+-   操作用PC側の全ノードを起動するためのlaunchファイルを提供する。
+
+#### 2.2.2 Raspberry Pi側パッケージ構成
+
+**hairobo_sensors パッケージ**
 -   **camera_nodes (4つ)**: 各USBカメラの映像をハードウェアエンコードで圧縮し、`/image_compressed`形式で配信する。
 -   **lidar_sdk_node**: LiDARから点群データを取得し、`/point_cloud2`トピックで配信する。
+
+**hairobo_driver パッケージ**
 -   **robot_driver_node**: PCからの指令を購読し、STM32 Nucleoへのシリアル通信コマンド（0～1の速度指令など）とGPIO信号に変換して制御指令を送信する。また、モーターのエンコーダ情報から走行距離を計算し`/odom`トピックを配信する。
 -   **status_publisher_node**: バッテリー電圧やモーターの電流値などを監視し、`/robot_status`トピックで配信する。
+
+**hairobo_bringup パッケージ**
+-   Raspberry Pi側の全ノードを起動するためのlaunchファイルを提供する。
+
+#### 2.2.3 共通パッケージ
+
+**hairobo_msgs パッケージ**
+-   プロジェクト固有のカスタムメッセージ型とサービス定義を提供する。
+-   型安全な通信を実現するため、`hairobo_msgs/RecoveryCommand` や `hairobo_msgs/RobotStatus` といったカスタムメッセージ型を定義する。
 
 ### 2.3 ネットワーク構成
 操作用PCとRaspberry Piは有線LANで接続し、固定IPアドレスを割り当てることで安定した通信を確保する。
@@ -79,26 +101,28 @@
     -   LiDARの点群データ
     -   SLAMによって生成された環境地図
     -   地図上でのロボットの現在位置と向き
-    -   ロボットのステータス情報（操作モード、バッテリー電圧など）
+    -   ロボットのステータス情報（操作モード、バッテリー電圧、警告など）
 
 ---
 
 ## 4. ROS 2インターフェース仕様
 
 ### 4.1 トピック一覧
-| トピック名                              | メッセージ型                  | 説明                                                            |
-| --------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
-| `/joy`                                  | `sensor_msgs/Joy`             | DUALSHOCK 4の入力                                               |
-| `/parent/cmd_vel`                       | `geometry_msgs/Twist`         | 親機の速度指令 (線形速度x, 角速度zは-1.0～1.0の範囲)            |
-| `/child/cmd_vel`                        | `geometry_msgs/Twist`         | 子機の速度指令 (線形速度x, 角速度zは-1.0～1.0の範囲)            |
-| `/recovery_mechanism/command`           | `std_msgs/String`             | 回収機構への指令 (例: "BRUSH_ON", "LID_OPEN")                   |
-| `/parent/camera_front/image_compressed` | `sensor_msgs/CompressedImage` | 親機前方カメラの圧縮映像                                        |
-| ... (他3台のカメラも同様)               |                               |                                                                 |
-| `/point_cloud2`                         | `sensor_msgs/PointCloud2`     | LiDARの点群データ                                               |
-| `/odom`                                 | `nav_msgs/Odometry`           | モーターエンコーダからの走行距離情報 (STM32 Nucleoから受信想定) |
-| `/map`                                  | `nav_msgs/OccupancyGrid`      | SLAMが生成した地図                                              |
-| `/tf`                                   | `tf2_msgs/TFMessage`          | 座標系間の関係                                                  |
-| `/robot_status`                         | `std_msgs/String`             | 各種ステータス情報 (JSON形式などを想定)                         |
+| トピック名                              | メッセージ型                   | 説明                                                            |
+| --------------------------------------- | ------------------------------ | --------------------------------------------------------------- |
+| `/joy`                                  | `sensor_msgs/Joy`              | DUALSHOCK 4の入力                                               |
+| `/parent/cmd_vel`                       | `geometry_msgs/Twist`          | 親機の速度指令 (線形速度x, 角速度zは-1.0～1.0の範囲)            |
+| `/child/cmd_vel`                        | `geometry_msgs/Twist`          | 子機の速度指令 (線形速度x, 角速度zは-1.0～1.0の範囲)            |
+| `/recovery_mechanism/command`           | `hairobo_msgs/RecoveryCommand` | 回収機構（ブラシ、蓋）へのON/OFF指令                            |
+| `/parent/camera_front/image_compressed` | `sensor_msgs/CompressedImage`  | 親機前方カメラの圧縮映像                                        |
+| `/parent/camera_rear/image_compressed`  | `sensor_msgs/CompressedImage`  | 親機後方カメラの圧縮映像                                        |
+| `/child/camera_front/image_compressed`  | `sensor_msgs/CompressedImage`  | 子機前方カメラの圧縮映像                                        |
+| `/child/camera_rear/image_compressed`   | `sensor_msgs/CompressedImage`  | 子機後方カメラの圧縮映像                                        |
+| `/point_cloud2`                         | `sensor_msgs/PointCloud2`      | LiDARの点群データ                                               |
+| `/odom`                                 | `nav_msgs/Odometry`            | モーターエンコーダからの走行距離情報 (STM32 Nucleoから受信想定) |
+| `/map`                                  | `nav_msgs/OccupancyGrid`       | SLAMが生成した地図                                              |
+| `/tf`                                   | `tf2_msgs/TFMessage`           | 座標系間の関係                                                  |
+| `/robot_status`                         | `hairobo_msgs/RobotStatus`     | 各種ステータス情報（バッテリー電圧、操作モード等）              |
 
 ### 4.2 TFツリー
 `map` -> `odom` -> `base_link` -> `lidar_link`, `camera_link`, etc.
@@ -112,7 +136,19 @@
 -   ROS 2のLaunch System (`ros2 launch`) を活用し、システムの起動手順を自動化する。
 -   これにより、ヒューマンエラーを排除し、いかなる時でも迅速かつ確実にオペレーションを開始できる状態を保証する。
 
-### 5.2 堅牢性
+### 5.2 堅牢性と異常系要件
 -   システムは、一時的なネットワークの切断やノードの再起動に対して、可能な限り堅牢であること。
 -   各ROS 2ノードは、通信相手が一時的に不在になった場合でも、異常終了することなく再接続を試みる設計とする。
 -   システム全体として、長時間安定して稼働し続けることを目指す。
+-   **異常時の振る舞いを以下のように定める**:
+    -   **通信途絶時**: 操作PCとオンボードPC間の通信が一定時間途絶えた場合、親機および子機のモーターは全て安全に停止する。
+    -   **バッテリー低下時**: バッテリー電圧が規定の閾値を下回った場合、`/robot_status`を通じて警告を発し、RViz2上に通知を表示する。
+    -   **センサー異常時**: 主要なセンサー（LiDARやカメラ）からのデータが途絶えた場合、RViz2上で該当センサーの状態をエラー表示する。
+
+### 5.3 パフォーマンスリスク
+-   オンボードPC (Raspberry Pi 4B) は、4台のカメラ映像のリアルタイム・ハードウェアエンコード、LiDARデータ処理、モーター制御指令の送受信を同時に担うため、高い処理負荷が想定される。
+-   開発の初期段階で、これらの処理を同時に実行しても性能要件（特にカメラのフレームレート15fps以上）を満たせるかを確認するための**技術検証（Proof of Concept）**を実施する。性能が不足する場合は、より高性能なオンボードPCの検討や、処理の分散などの対策を講じる。
+
+## 6.その他
+### 6.1 ドキュメント
+- ドキュメントはVitepressを用いたモダンなものを作成する。
