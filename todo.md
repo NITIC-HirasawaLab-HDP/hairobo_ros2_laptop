@@ -8,12 +8,15 @@
 - [ ] ハードウェア接続仕様確認
 
 ### ワークスペース環境構築
-- [x] srcディレクトリのパッケージ整理 (2025/09/11)
+- [x] srcディレクトリのパッケージ整理 (2025/09/11, 2025/09/11 23:58)
   - 不要なパッケージ（robot_interfaces, rviz_config, hairobo_simulation）を削除
   - パッケージ名を仕様書に準拠して変更：
     - teleop_logic_node → hairobo_teleop
     - test_camera → hairobo_sensors  
     - hairobo_controller → hairobo_driver
+  - 操作用PC用ワークスペースに合わせてRaspberry Pi側専用パッケージを削除：
+    - hairobo_driver (Raspberry Pi側のロボットドライバー)
+    - hairobo_sensors (Raspberry Pi側のセンサー処理)
 - [ ] CMakeLists.txt設定
 - [x] package.xml依存関係定義 (2025/09/11)
 - [x] パッケージ名整備 (2025/09/11)
@@ -41,11 +44,11 @@
   - [ ] 設定パラメータファイル
 
 ### Raspberry Pi側パッケージ
-- [x] hairobo_sensors パッケージ作成
+- [ ] hairobo_sensors パッケージ作成
   - [ ] カメラノード実装
   - [ ] LiDARドライバー統合
   - [ ] センサーキャリブレーション
-- [x] hairobo_driver パッケージ作成
+- [ ] hairobo_driver パッケージ作成
   - [ ] モーター制御ドライバー
   - [ ] ハードウェア抽象化レイヤー
 - [ ] hairobo_bringup パッケージ作成

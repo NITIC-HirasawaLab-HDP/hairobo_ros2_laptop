@@ -3,6 +3,7 @@
 [![ROS2](https://img.shields.io/badge/ROS2-Humble-blue.svg)](https://docs.ros.org/en/humble/)
 
 ロボット制御・運用のためのROS 2ワークスペースです。2クローラ構成の親機・子機システムを制御します。
+このワークスペースでは、操作用PC用パッケージのみを開発します。
 
 ## 📋 目次
 
@@ -50,8 +51,9 @@ hairobo_ws/
 
 | パッケージ名 | 説明 |
 |-------------|------|
-| `hairobo_controller` | ロボット制御ノード（メイン制御ロジック） |
-| `hairobo_bringup` | 起動・セットアップ用パッケージ |
+| `hairobo_msgs` | プロジェクト固有のカスタムメッセージ型とサービス定義 |
+| `hairobo_teleop` | DUALSHOCK 4を使った遠隔操作機能 |
+| `hairobo_launch` | 操作用PC側の起動・セットアップ用パッケージ |
 
 ## 🚀 クイックスタート
 
