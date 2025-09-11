@@ -7,9 +7,36 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(hairobo_msgs REQUIRED)
+
+# Add executable
+add_executable(teleop_logic_node src/teleop_logic_node.cpp)
+
+# Specify libraries to link executable target against
+ament_target_dependencies(teleop_logic_node
+  rclcpp
+  sensor_msgs
+  geometry_msgs
+  std_msgs
+  hairobo_msgs
+)
+
+# Install executable
+install(TARGETS
+  teleop_logic_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install launch files (if any)
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+  FILES_MATCHING PATTERN "*.launch.py"
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
