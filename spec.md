@@ -38,8 +38,7 @@
 
 ### 2.2 ソフトウェア構成 (ROS 2 ノード)
 
-![システム構成図のプレースホルダー](https://via.placeholder.com/800x400.png?text=Proposed+System+Architecture+Diagram)
-> 上記画像は提案した最終構成図を表すプレースホルダーです。
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/board/OCDismRVuq7uSEGfK4WbfH/Hairobo_ROS2_diagram?node-id=0-1&embed-host=share" allowfullscreen></iframe>
 
 #### 2.2.1 操作用PC上のノード
 -   **joy_node**: DUALSHOCK 4の入力を`/joy`トピックとして配信する。
