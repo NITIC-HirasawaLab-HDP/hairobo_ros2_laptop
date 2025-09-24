@@ -51,7 +51,9 @@
 -   **image_transport/republish**: RPiから送られてくる圧縮画像を展開し、RViz2で表示可能なraw画像に変換する。
 
 **hairobo_slam パッケージ**
--   **slam_toolbox_node**: RPiから送られてくるセンサー情報に基づき、SLAM（自己位置推定と地図作成）を実行する。
+-   **cartographer_node**: RPiから送られてくるLiDARと走行距離情報に基づき、Google Cartographerを用いたSLAM（自己位置推定と地図作成）を実行する。
+-   **cartographer_occupancy_grid_node**: Cartographerが生成するサブマップを占有格子地図（OccupancyGrid）に変換し、ナビゲーションで使用可能な形式で配信する。
+-   **map_server_node**: 作成された地図を保存・読み込みする機能を提供する。
 
 **hairobo_launch パッケージ**
 -   操作用PC側の全ノードを起動するためのlaunchファイルを提供する。
@@ -93,15 +95,25 @@
 -   RPiは、LiDARから点群データを取得し、PCに配信すること。
 
 ### 3.3 自己位置推定・環境地図作成機能 (SLAM)
--   PCは、RPiから受信した点群データと走行距離情報を用いて、環境地図を生成し、地図上でのロボットの自己位置を推定すること。
+-   PCは、RPiから受信したLiDARの点群データと走行距離情報（オドメトリ）を用いて、Google Cartographerによる高精度なSLAMを実行すること。
+-   Cartographerのループクロージャ機能により、長時間の走行における誤差蓄積を抑制し、一貫性のある地図を生成すること。
+-   生成された地図は、占有格子地図（OccupancyGrid）形式でナビゲーションシステムで利用可能であること。
+-   地図作成中もリアルタイムで自己位置推定を継続し、オペレーターが現在位置を把握できること。
+-   作成された地図は保存・読み込みが可能であり、後の作業で再利用できること。
 
-### 3.4 状態監視・可視化機能
+### 3.4 地図保存・管理機能
+-   作成されたSLAM地図を.pgmおよび.yaml形式で保存できること。
+-   保存された地図を再度読み込み、既知環境でのローカライゼーション（自己位置推定のみ）ができること。
+-   複数の地図を管理し、作業エリアに応じて適切な地図を選択して使用できること。
+
+### 3.5 状態監視・可視化機能
 -   オペレーターは、操作用PCのRViz2画面で以下の情報を同時に監視できること。
     -   4台のカメラ映像
-    -   LiDARの点群データ
-    -   SLAMによって生成された環境地図
-    -   地図上でのロボットの現在位置と向き
+    -   LiDARの点群データ（リアルタイム表示）
+    -   Cartographerによって生成された環境地図（サブマップと統合地図の両方）
+    -   地図上でのロボットの現在位置と向き（軌跡の表示も含む）
     -   ロボットのステータス情報（操作モード、バッテリー電圧、警告など）
+    -   SLAMの実行状態（マッピング中/ローカライゼーション中の表示）
 
 ---
 
@@ -120,11 +132,25 @@
 | `/child/camera_rear/image_compressed`   | `sensor_msgs/CompressedImage`  | 子機後方カメラの圧縮映像                                        |
 | `/point_cloud2`                         | `sensor_msgs/PointCloud2`      | LiDARの点群データ                                               |
 | `/odom`                                 | `nav_msgs/Odometry`            | モーターエンコーダからの走行距離情報 (STM32 Nucleoから受信想定) |
-| `/map`                                  | `nav_msgs/OccupancyGrid`       | SLAMが生成した地図                                              |
+| `/map`                                  | `nav_msgs/OccupancyGrid`       | Cartographerが生成した占有格子地図                               |
+| `/submap_list`                          | `cartographer_ros_msgs/SubmapList` | Cartographerのサブマップ情報                                  |
+| `/trajectory_node_list`                 | `cartographer_ros_msgs/TrajectoryNodeList` | Cartographerの軌跡ノード情報                              |
+| `/landmark_poses_list`                  | `cartographer_ros_msgs/LandmarkList` | Cartographerのランドマーク情報                               |
+| `/constraint_list`                      | `cartographer_ros_msgs/ConstraintList` | Cartographerの制約情報                                     |
 | `/tf`                                   | `tf2_msgs/TFMessage`           | 座標系間の関係                                                  |
 | `/robot_status`                         | `hairobo_msgs/RobotStatus`     | 各種ステータス情報（バッテリー電圧、操作モード等）              |
 
-### 4.2 TFツリー
+### 4.2 サービス一覧
+| サービス名                              | サービス型                               | 説明                                                            |
+| --------------------------------------- | ---------------------------------------- | --------------------------------------------------------------- |
+| `/submap_query`                         | `cartographer_ros_msgs/SubmapQuery`     | 特定のサブマップの詳細情報を取得                                |
+| `/start_trajectory`                     | `cartographer_ros_msgs/StartTrajectory` | 新しい軌跡の開始                                                |
+| `/trajectory_query`                     | `cartographer_ros_msgs/TrajectoryQuery` | 軌跡情報の取得                                                  |
+| `/write_state`                          | `cartographer_ros_msgs/WriteState`      | Cartographerの状態をファイルに保存                              |
+| `/get_trajectory_states`                | `cartographer_ros_msgs/GetTrajectoryStates` | 軌跡の状態を取得                                            |
+| `/read_metrics`                         | `cartographer_ros_msgs/ReadMetrics`     | Cartographerのメトリクス情報を取得                              |
+
+### 4.3 TFツリー
 `map` -> `odom` -> `base_link` -> `lidar_link`, `camera_link`, etc.
 
 ---
@@ -145,10 +171,33 @@
     -   **バッテリー低下時**: バッテリー電圧が規定の閾値を下回った場合、`/robot_status`を通じて警告を発し、RViz2上に通知を表示する。
     -   **センサー異常時**: 主要なセンサー（LiDARやカメラ）からのデータが途絶えた場合、RViz2上で該当センサーの状態をエラー表示する。
 
-### 5.3 パフォーマンスリスク
--   オンボードPC (Raspberry Pi 4B) は、4台のカメラ映像のリアルタイム・ハードウェアエンコード、LiDARデータ処理、モーター制御指令の送受信を同時に担うため、高い処理負荷が想定される。
--   開発の初期段階で、これらの処理を同時に実行しても性能要件（特にカメラのフレームレート15fps以上）を満たせるかを確認するための**技術検証（Proof of Concept）**を実施する。性能が不足する場合は、より高性能なオンボードPCの検討や、処理の分散などの対策を講じる。
+### 5.3 SLAM性能要件
+-   Cartographerは、リアルタイムでの地図生成と自己位置推定を実行し、LiDARデータの処理遅延を最小限に抑えること。
+-   ループクロージャの検出と実行により、大規模環境においても地図の一貫性を保持すること。
+-   地図の解像度は作業に必要な精度（推奨：0.05m/pixel）を確保し、デブリ回収作業に支障をきたさないこと。
+-   長時間の運用においても、メモリ使用量の増大を適切に管理し、システムの安定性を維持すること。
 
-## 6.その他
-### 6.1 ドキュメント
+### 5.4 パフォーマンスリスク
+-   オンボードPC (Raspberry Pi 4B) は、4台のカメラ映像のリアルタイム・ハードウェアエンコード、LiDARデータ処理、モーター制御指令の送受信を同時に担うため、高い処理負荷が想定される。
+-   操作用PCは、Cartographerによる高負荷なSLAM処理を実行するため、十分な計算リソース（CPU、メモリ）を確保する必要がある。
+-   開発の初期段階で、これらの処理を同時に実行しても性能要件（特にカメラのフレームレート15fps以上、SLAMのリアルタイム性）を満たせるかを確認するための**技術検証（Proof of Concept）**を実施する。性能が不足する場合は、より高性能なハードウェアの検討や、処理の分散などの対策を講じる。
+
+## 6. Cartographer設定要件
+
+### 6.1 基本設定
+-   **地図解像度**: 0.05m/pixelでの高精度地図作成を行うこと。
+-   **LiDARセンサー設定**: 2D LiDARの仕様に合わせた適切な角度範囲と距離範囲を設定すること。
+-   **オドメトリ統合**: モーターエンコーダからの走行距離情報を適切に統合し、SLAM精度を向上させること。
+
+### 6.2 パフォーマンス調整
+-   **サブマップサイズ**: 処理能力とメモリ使用量を考慮した適切なサブマップサイズを設定すること。
+-   **ループクロージャ頻度**: 環境に応じてループクロージャの実行頻度を調整し、処理負荷と地図品質のバランスを取ること。
+-   **リアルタイム制約**: リアルタイム処理を優先し、必要に応じて地図品質よりも応答性を重視した設定とすること。
+
+### 6.3 可視化設定
+-   **RViz2プラグイン**: Cartographer専用のRViz2プラグインを使用し、サブマップや軌跡の詳細な可視化を実現すること。
+-   **デバッグ情報**: 開発・デバッグ時には、制約情報やランドマーク情報も表示できるよう設定すること。
+
+## 7.その他
+### 7.1 ドキュメント
 - ドキュメントはVitepressを用いたモダンなものを作成する。
