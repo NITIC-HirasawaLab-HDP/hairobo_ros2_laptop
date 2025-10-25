@@ -1,8 +1,8 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <hairobo_msgs/msg/operation_mode.hpp>
-#include <hairobo_msgs/msg/recovery_command.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joy.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include <std_msgs/msg/header.hpp>
 
 class TeleopLogicNode : public rclcpp::Node {
@@ -40,11 +40,9 @@ class TeleopLogicNode : public rclcpp::Node {
     // 7: 十字キー上下
 
     // ボタン番号（DUALSHOCK 4）
-    static constexpr int DEADMAN_BUTTON = 4;     // L1ボタン（デッドマンスイッチ）
     static constexpr int PARENT_MODE_BUTTON = 3; // □ボタン（親機操作モード）
     static constexpr int CHILD_MODE_BUTTON = 2;  // △ボタン（子機操作モード）
     static constexpr int BRUSH_MOTOR_BUTTON = 1; // ×ボタン（ブラシモーター制御）
-    static constexpr int LID_SERVO_BUTTON = 0;   // ○ボタン（蓋サーボ制御）
 
     // アナログスティック軸番号
     static constexpr int LINEAR_AXIS = 1;  // 左スティック上下（前後移動）
@@ -64,23 +62,21 @@ class TeleopLogicNode : public rclcpp::Node {
         // Publishers
         parent_cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/parent/cmd_vel", 10);
         child_cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/child/cmd_vel", 10);
-        recovery_cmd_pub_ = this->create_publisher<hairobo_msgs::msg::RecoveryCommand>("/recovery_mechanism/command", 10);
+        brush_cmd_pub_ = this->create_publisher<std_msgs::msg::Bool>("/brush/command", 10);
         operation_mode_pub_ = this->create_publisher<hairobo_msgs::msg::OperationMode>("/operation_mode", 10);
 
         // 状態変数の初期化
         current_operation_mode_ = hairobo_msgs::msg::OperationMode::MODE_PARENT;
         brush_motor_enabled_ = false;
-        lid_servo_open_ = false;
 
         // 前回のボタン状態を記録（トグル処理用）
         last_parent_button_ = false;
         last_child_button_ = false;
         last_brush_button_ = false;
-        last_lid_button_ = false;
 
         RCLCPP_INFO(this->get_logger(), "Teleop Logic Node initialized");
-        RCLCPP_INFO(this->get_logger(), "Controller mapping - Deadman: L1(%d), Parent: □(%d), Child: △(%d)",
-                    DEADMAN_BUTTON, PARENT_MODE_BUTTON, CHILD_MODE_BUTTON);
+        RCLCPP_INFO(this->get_logger(), "Controller mapping - Parent: □(%d), Child: △(%d)",
+                    PARENT_MODE_BUTTON, CHILD_MODE_BUTTON);
 
         // 初期操作モードを配信
         publish_operation_mode();
@@ -88,25 +84,14 @@ class TeleopLogicNode : public rclcpp::Node {
 
   private:
     void joy_callback(const sensor_msgs::msg::Joy::SharedPtr msg) {
-        // デッドマンスイッチのチェック（L1ボタン）
-        bool deadman_pressed = false;
-        if (static_cast<int>(msg->buttons.size()) > DEADMAN_BUTTON) {
-            deadman_pressed = msg->buttons[DEADMAN_BUTTON];
-        }
-
         // 操作モード切り替えの処理
         handle_mode_switching(msg);
 
-        // 回収機構制御の処理
-        handle_recovery_mechanism(msg);
+        // ブラシモーター制御の処理
+        handle_brush_control(msg);
 
         // 移動制御の処理
-        if (deadman_pressed) {
-            handle_movement_control(msg);
-        } else {
-            // デッドマンスイッチが押されていない場合は停止指令
-            publish_stop_command();
-        }
+        handle_movement_control(msg);
     }
 
     void handle_mode_switching(const sensor_msgs::msg::Joy::SharedPtr msg) {
@@ -133,44 +118,23 @@ class TeleopLogicNode : public rclcpp::Node {
         last_child_button_ = child_button;
     }
 
-    void handle_recovery_mechanism(const sensor_msgs::msg::Joy::SharedPtr msg) {
+    void handle_brush_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         // ブラシモーター制御ボタン
         bool brush_button = static_cast<int>(msg->buttons.size()) > BRUSH_MOTOR_BUTTON && msg->buttons[BRUSH_MOTOR_BUTTON];
-        // 蓋サーボ制御ボタン
-        bool lid_button = static_cast<int>(msg->buttons.size()) > LID_SERVO_BUTTON && msg->buttons[LID_SERVO_BUTTON];
-
-        bool command_changed = false;
 
         // ブラシモーターのトグル処理
         if (brush_button && !last_brush_button_) {
             brush_motor_enabled_ = !brush_motor_enabled_;
-            command_changed = true;
             RCLCPP_INFO(this->get_logger(), "Brush motor: %s", brush_motor_enabled_ ? "ON" : "OFF");
-        }
 
-        // 蓋サーボのトグル処理
-        if (lid_button && !last_lid_button_) {
-            lid_servo_open_ = !lid_servo_open_;
-            command_changed = true;
-            RCLCPP_INFO(this->get_logger(), "Lid servo: %s", lid_servo_open_ ? "OPEN" : "CLOSE");
-        }
-
-        // 回収機構コマンドの配信
-        if (command_changed) {
-            auto recovery_cmd = hairobo_msgs::msg::RecoveryCommand();
-            recovery_cmd.header.stamp = this->now();
-            recovery_cmd.header.frame_id = "base_link";
-            recovery_cmd.brush_motor_enable = brush_motor_enabled_;
-            recovery_cmd.lid_servo_open = lid_servo_open_;
-            recovery_cmd.child_motor_enable = true; // 通常は有効
-            recovery_cmd.priority = 0;              // 通常優先度
-
-            recovery_cmd_pub_->publish(recovery_cmd);
+            // ブラシモーターコマンドの配信
+            auto bool_msg = std_msgs::msg::Bool();
+            bool_msg.data = brush_motor_enabled_;
+            brush_cmd_pub_->publish(bool_msg);
         }
 
         // 前回のボタン状態を更新
         last_brush_button_ = brush_button;
-        last_lid_button_ = lid_button;
     }
 
     void handle_movement_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
@@ -222,19 +186,17 @@ class TeleopLogicNode : public rclcpp::Node {
     // Publishers
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr parent_cmd_vel_pub_;
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr child_cmd_vel_pub_;
-    rclcpp::Publisher<hairobo_msgs::msg::RecoveryCommand>::SharedPtr recovery_cmd_pub_;
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr brush_cmd_pub_;
     rclcpp::Publisher<hairobo_msgs::msg::OperationMode>::SharedPtr operation_mode_pub_;
 
     // 状態変数
     uint8_t current_operation_mode_;
     bool brush_motor_enabled_;
-    bool lid_servo_open_;
 
     // 前回ボタン状態（トグル処理用）
     bool last_parent_button_;
     bool last_child_button_;
     bool last_brush_button_;
-    bool last_lid_button_;
 };
 
 int main(int argc, char **argv) {
@@ -243,4 +205,4 @@ int main(int argc, char **argv) {
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
-}
+};
