@@ -40,9 +40,10 @@ class TeleopLogicNode : public rclcpp::Node {
     // 7: 十字キー上下
 
     // ボタン番号（DUALSHOCK 4）
-    static constexpr int PARENT_MODE_BUTTON = 3; // □ボタン（親機操作モード）
-    static constexpr int CHILD_MODE_BUTTON = 2;  // △ボタン（子機操作モード）
-    static constexpr int BRUSH_MOTOR_BUTTON = 1; // ×ボタン（ブラシモーター制御）
+    static constexpr int PARENT_MODE_BUTTON = 3;     // □ボタン（親機操作モード）
+    static constexpr int CHILD_MODE_BUTTON = 2;      // △ボタン（子機操作モード）
+    static constexpr int BRUSH_MOTOR_ON_BUTTON = 0;  // ○ボタン（ブラシモーターON）
+    static constexpr int BRUSH_MOTOR_OFF_BUTTON = 1; // ×ボタン（ブラシモーターOFF）
 
     // アナログスティック軸番号
     static constexpr int LINEAR_AXIS = 1;  // 左スティック上下（前後移動）
@@ -72,7 +73,8 @@ class TeleopLogicNode : public rclcpp::Node {
         // 前回のボタン状態を記録（トグル処理用）
         last_parent_button_ = false;
         last_child_button_ = false;
-        last_brush_button_ = false;
+        last_brush_on_button_ = false;
+        last_brush_off_button_ = false;
 
         RCLCPP_INFO(this->get_logger(), "Teleop Logic Node initialized");
         RCLCPP_INFO(this->get_logger(), "Controller mapping - Parent: □(%d), Child: △(%d)",
@@ -120,21 +122,35 @@ class TeleopLogicNode : public rclcpp::Node {
 
     void handle_brush_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         // ブラシモーター制御ボタン
-        bool brush_button = static_cast<int>(msg->buttons.size()) > BRUSH_MOTOR_BUTTON && msg->buttons[BRUSH_MOTOR_BUTTON];
+        bool brush_on_button = static_cast<int>(msg->buttons.size()) > BRUSH_MOTOR_ON_BUTTON && msg->buttons[BRUSH_MOTOR_ON_BUTTON];
+        bool brush_off_button = static_cast<int>(msg->buttons.size()) > BRUSH_MOTOR_OFF_BUTTON && msg->buttons[BRUSH_MOTOR_OFF_BUTTON];
 
-        // ブラシモーターのトグル処理
-        if (brush_button && !last_brush_button_) {
-            brush_motor_enabled_ = !brush_motor_enabled_;
-            RCLCPP_INFO(this->get_logger(), "Brush motor: %s", brush_motor_enabled_ ? "ON" : "OFF");
+        bool state_changed = false;
 
-            // ブラシモーターコマンドの配信
+        // ブラシモーターONの処理
+        if (brush_on_button && !last_brush_on_button_ && !brush_motor_enabled_) {
+            brush_motor_enabled_ = true;
+            state_changed = true;
+            RCLCPP_INFO(this->get_logger(), "Brush motor: ON");
+        }
+
+        // ブラシモーターOFFの処理
+        if (brush_off_button && !last_brush_off_button_ && brush_motor_enabled_) {
+            brush_motor_enabled_ = false;
+            state_changed = true;
+            RCLCPP_INFO(this->get_logger(), "Brush motor: OFF");
+        }
+
+        // 状態が変更された場合のみコマンドを配信
+        if (state_changed) {
             auto bool_msg = std_msgs::msg::Bool();
             bool_msg.data = brush_motor_enabled_;
             brush_cmd_pub_->publish(bool_msg);
         }
 
         // 前回のボタン状態を更新
-        last_brush_button_ = brush_button;
+        last_brush_on_button_ = brush_on_button;
+        last_brush_off_button_ = brush_off_button;
     }
 
     void handle_movement_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
@@ -196,7 +212,8 @@ class TeleopLogicNode : public rclcpp::Node {
     // 前回ボタン状態（トグル処理用）
     bool last_parent_button_;
     bool last_child_button_;
-    bool last_brush_button_;
+    bool last_brush_on_button_;
+    bool last_brush_off_button_;
 };
 
 int main(int argc, char **argv) {
