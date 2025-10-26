@@ -1,4 +1,4 @@
 cd ~/Dev/Hairobo/hairobo_ws
-source install/setup.sh
+source hairobo_setup.sh
 
 ros2 launch hairobo_bringup bringup.launch.py
