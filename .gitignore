@@ -16,4 +16,5 @@ __pycache__/
 # MacOS
 .DS_Store
 
-# その他一時
+# Node modules
+node_modules/
