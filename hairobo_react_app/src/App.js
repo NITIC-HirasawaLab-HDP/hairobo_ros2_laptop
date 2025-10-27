@@ -13,7 +13,8 @@ function App() {
 
   return (
     <Container fluid className="p-3">
-      <Rosconnection rosUrl="ws://localhost:9090" rosDomainId="89" setRos={setRos} />
+      <Rosconnection rosUrl={`ws://${window.location.hostname}:9090`} rosDomainId="89" setRos={setRos} />
+      {/* <Rosconnection rosUrl="ws://localhost:9090" rosDomainId="89" setRos={setRos} /> */}
 
       <Row className="g-3">
         <Col lg={6} md={6} sm={12}>
