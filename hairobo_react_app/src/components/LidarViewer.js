@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import './Camera.css';
 
-const VIEWER_HEIGHT = 480;
 const CAMERA_INITIAL_POSITION = { x: 3, y: 3, z: 2 };
 const CAMERA_LOOK_AT = { x: 0, y: 0, z: 0 };
 const ROBOT_BOX_SIZE = { width: 0.5, height: 0.3, depth: 0.2 };
@@ -21,8 +21,8 @@ const LidarViewer = ({ ros }) => {
         console.log('LidarViewer: 3Dビューア初期化開始');
 
         try {
-            const containerWidth = container.clientWidth || 800;
-            const containerHeight = VIEWER_HEIGHT;
+            const containerWidth = container.clientWidth || 640;
+            const containerHeight = container.clientHeight || 480;
 
             // Three.jsシーンの初期化
             const scene = new THREE.Scene();
@@ -127,15 +127,16 @@ const LidarViewer = ({ ros }) => {
     }, []);
 
     return (
-        <div
-            ref={viewerContainerRef}
-            style={{
-                height: `${VIEWER_HEIGHT}px`,
-                width: '100%',
-                border: '1px solid #ccc',
-                backgroundColor: '#f0f0f0'
-            }}
-        />
+        <div className="lidar-container">
+            <div
+                ref={viewerContainerRef}
+                className="lidar-canvas"
+                style={{
+                    width: '100%',
+                    height: '100%'
+                }}
+            />
+        </div>
     );
 };
 

@@ -1,3 +1,72 @@
+/* アプリケーション全体のコンテナ */
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  overflow: hidden;
+}
+
+/* 映像グリッドコンテナ */
+.video-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 16px;
+  width: 90vw;
+  height: 80vh;
+  max-width: 1280px;
+  /* 640px × 2 */
+  max-height: 960px;
+  /* 480px × 2 */
+  padding: 16px;
+}
+
+/* 各映像アイテム */
+.video-item {
+  width: 100%;
+  height: 100%;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ステータスバー */
+.status-bar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(248, 249, 250, 0.95);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-bar h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .video-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    width: 95vw;
+    height: 85vh;
+    gap: 12px;
+  }
+}
+
+/* 既存のApp関連スタイル */
 .App {
   text-align: center;
 }
@@ -32,6 +101,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

@@ -6,37 +6,37 @@ import ChildFrontCamera from './components/ChildFrontCamera';
 import LidarViewer from './components/LidarViewer';
 import Rosconnection from './components/RosConnection';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Row, Col } from 'react-bootstrap';
 
 function App() {
   const [ros, setRos] = useState(null);
 
   return (
-    <Container fluid className="p-3">
+    <div className="app-container">
       <Rosconnection rosUrl={`ws://${window.location.hostname}:9090`} rosDomainId="89" setRos={setRos} />
       {/* <Rosconnection rosUrl="ws://localhost:9090" rosDomainId="89" setRos={setRos} /> */}
 
-      <Row className="g-3">
-        <Col lg={6} md={6} sm={12}>
+      <div className="video-grid">
+        <div className="video-item">
           <ParentFrontCamera ros={ros} />
-        </Col>
+        </div>
 
-        <Col lg={6} md={6} sm={12}>
+        <div className="video-item">
           <ParentRearCamera ros={ros} />
-        </Col>
+        </div>
 
-        <Col lg={6} md={6} sm={12}>
+        <div className="video-item">
           <ChildFrontCamera ros={ros} />
-        </Col>
+        </div>
 
-        <Col lg={6} md={6} sm={12}>
+        <div className="video-item">
           <LidarViewer ros={ros} />
-        </Col>
-      </Row>
+        </div>
+      </div>
 
-      <hr className="mt-4" />
-      <h3 className="text-primary">Connection: <span id="status">N/A</span></h3>
-    </Container>
+      <div className="status-bar">
+        <h3 className="text-primary">Connection: <span id="status">N/A</span></h3>
+      </div>
+    </div>
   );
 }
 

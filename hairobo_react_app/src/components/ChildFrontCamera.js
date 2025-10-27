@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
+import './Camera.css';
 
 const CAMERA_TOPIC = '/child_front_camera/image_raw/compressed';
 const CAMERA_TITLE = 'Child Front Camera';
@@ -30,39 +31,31 @@ const ChildFrontCamera = ({ ros }) => {
     }, [ros]);
 
     return (
-        <div className="border rounded p-3 h-100">
+        <div className="camera-container">
             {ros ? (
-                <div className="d-flex justify-content-center align-items-center" style={{ position: 'relative' }}>
+                <div className="camera-content">
                     {imgData ? (
                         <>
-                            <img src={imgData} alt={CAMERA_TITLE} style={{ maxWidth: '100%', height: 'auto', display: 'block' }} />
-                            <div style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                color: 'white',
-                                padding: '8px 12px',
-                                fontSize: '14px',
-                                fontWeight: '500'
-                            }}>
+                            <img
+                                src={imgData}
+                                alt={CAMERA_TITLE}
+                                className="camera-image"
+                            />
+                            <div className="camera-overlay">
                                 {CAMERA_TOPIC}
                             </div>
                         </>
                     ) : (
-                        <div className="text-center text-muted">
-                            <div className="mb-2">📷</div>
+                        <div className="camera-placeholder">
+                            <div className="camera-icon">📷</div>
                             <small>Waiting for image...</small>
                         </div>
                     )}
                 </div>
             ) : (
-                <div className="d-flex justify-content-center align-items-center bg-light rounded" style={{ height: '200px' }}>
-                    <div className="text-center text-muted">
-                        <div className="mb-2">📷</div>
-                        <small>{CAMERA_TITLE}<br />Waiting...</small>
-                    </div>
+                <div className="camera-disconnected">
+                    <div className="camera-icon">📷</div>
+                    <small>{CAMERA_TITLE}<br />Waiting...</small>
                 </div>
             )}
         </div>
