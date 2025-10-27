@@ -77,7 +77,7 @@
 
 **hairobo_msgs パッケージ**
 -   プロジェクト固有のカスタムメッセージ型とサービス定義を提供する。
--   型安全な通信を実現するため、`hairobo_msgs/RecoveryCommand` や `hairobo_msgs/RobotStatus` といったカスタムメッセージ型を定義する。
+-   型安全な通信を実現するため、`hairobo_msgs/RobotStatus` や `hairobo_msgs/OperationMode` といったカスタムメッセージ型を定義する。
 
 ### 2.3 ネットワーク構成
 操作用PCとRaspberry Piは有線LANで接続し、固定IPアドレスを割り当てることで安定した通信を確保する。
@@ -127,10 +127,10 @@
 | `/joy`                                  | `sensor_msgs/Joy`              | DUALSHOCK 4の入力                                               |
 | `/parent/cmd_vel`                       | `geometry_msgs/Twist`          | 親機の速度指令 (線形速度x, 角速度zは-1.0～1.0の範囲)            |
 | `/child/cmd_vel`                        | `geometry_msgs/Twist`          | 子機の速度指令 (線形速度x, 角速度zは-1.0～1.0の範囲)            |
-| `/recovery_mechanism/command`           | `hairobo_msgs/RecoveryCommand` | 回収機構（ブラシ、蓋）へのON/OFF指令                            |
-| `/parent/camera_front/image_compressed` | `sensor_msgs/CompressedImage`  | 親機前方カメラの圧縮映像                                        |
-| `/parent/camera_rear/image_compressed`  | `sensor_msgs/CompressedImage`  | 親機後方カメラの圧縮映像                                        |
-| `/child/camera_front/image_compressed`  | `sensor_msgs/CompressedImage`  | 子機前方カメラの圧縮映像                                        |
+| `/brush/command`                        | `std_msgs/Bool`                | ブラシモーターのON/OFF指令                                      |
+| `/parent_front_camera/image_raw/compressed` | `sensor_msgs/CompressedImage`  | 親機前方カメラの圧縮映像                                        |
+| `/parent_rear_camera/image_raw/compressed`  | `sensor_msgs/CompressedImage`  | 親機後方カメラの圧縮映像                                        |
+| `/child_front_camera/image_raw/compressed`  | `sensor_msgs/CompressedImage`  | 子機前方カメラの圧縮映像                                        |
 | `/point_cloud2`                         | `sensor_msgs/PointCloud2`      | LiDARの点群データ                                               |
 | `/imu`                                  | `sensor_msgs/Imu`              | IMUからの角速度・加速度データ                                   |
 | `/odom`                                 | `nav_msgs/Odometry`            | IMUデータとモーター指令値から推定した走行距離情報               |
@@ -159,9 +159,9 @@
 | ノード名 | パッケージ | 入力トピック | 出力トピック | 説明 |
 |---------|-----------|-------------|-------------|------|
 | `joy_node` | hairobo_teleop | なし | `/joy` | DUALSHOCK 4からの入力を配信 |
-| `teleop_logic_node` | hairobo_teleop | `/joy` | `/parent/cmd_vel`<br>`/child/cmd_vel`<br>`/recovery_mechanism/command` | コントローラー入力を各種制御指令に変換 |
+| `teleop_logic_node` | hairobo_teleop | `/joy` | `/parent/cmd_vel`<br>`/child/cmd_vel`<br>`/brush/command` | コントローラー入力を各種制御指令に変換 |
 | `rviz2` | hairobo_visualization | 全てのセンサー・状態トピック | なし | 統合的な可視化インターフェース |
-| `image_transport/republish` | hairobo_visualization | `/parent/camera_front/image_compressed`<br>`/parent/camera_rear/image_compressed`<br>`/child/camera_front/image_compressed` | `/parent/camera_front/image_raw`<br>`/parent/camera_rear/image_raw`<br>`/child/camera_front/image_raw` | 圧縮画像をraw画像に変換 |
+| `image_transport/republish` | hairobo_visualization | `/parent_front_camera/image_raw/compressed`<br>`/parent_rear_camera/image_raw/compressed`<br>`/child_front_camera/image_raw/compressed` | `/parent_front_camera/image_raw`<br>`/parent_rear_camera/image_raw`<br>`/child_front_camera/image_raw` | 圧縮画像をraw画像に変換 |
 | `cartographer_node` | hairobo_slam | `/point_cloud2`<br>`/imu`<br>`/odom` | `/submap_list`<br>`/trajectory_node_list`<br>`/landmark_poses_list`<br>`/constraint_list`<br>`/tf` | SLAM実行と地図生成 |
 | `cartographer_occupancy_grid_node` | hairobo_slam | `/submap_list` | `/map` | サブマップを占有格子地図に変換 |
 | `map_server_node` | hairobo_slam | なし | `/map`<br>`/map_metadata` | 保存された地図の読み込み・配信 |
@@ -175,7 +175,7 @@
 | `child_camera_front_node` | hairobo_sensors | なし | `/child/camera_front/image_compressed` | 子機前方カメラ映像の圧縮配信 |
 | `lidar_sdk_node` | hairobo_sensors | なし | `/point_cloud2` | LiDAR点群データの取得・配信 |
 | `imu_node` | hairobo_sensors | なし | `/imu` | IMU角速度・加速度データの取得・配信 |
-| `robot_driver_node` | hairobo_driver | `/parent/cmd_vel`<br>`/child/cmd_vel`<br>`/recovery_mechanism/command`<br>`/imu` | `/odom`<br>STM32 Nucleoへのシリアル通信<br>GPIOサーボ制御 | モーター制御とオドメトリ推定 |
+| `robot_driver_node` | hairobo_driver | `/parent/cmd_vel`<br>`/child/cmd_vel`<br>`/brush/command`<br>`/imu` | `/odom`<br>STM32 Nucleoへのシリアル通信<br>GPIOサーボ制御 | モーター制御とオドメトリ推定 |
 | `status_publisher_node` | hairobo_driver | なし | `/robot_status` | バッテリー電圧・システム状態の監視・配信 |
 
 #### 4.3.3 TFツリー

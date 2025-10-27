@@ -9,8 +9,11 @@ const ParentFrontCamera = ({ ros }) => {
 
     useEffect(() => {
         if (!ros) {
+            console.log('ROS connection not available');
             return;
         }
+
+        console.log('Setting up image topic subscription for', CAMERA_TOPIC);
 
         const imageTopic = new ROSLIB.Topic({
             ros: ros,
@@ -19,12 +22,24 @@ const ParentFrontCamera = ({ ros }) => {
         });
 
         imageTopic.subscribe(function (message) {
-            console.log('Received image from', CAMERA_TOPIC);
-            const data = "data:image/jpeg;base64," + message.data;
-            setImgData(data);
+            console.log('Received image from', CAMERA_TOPIC, 'data length:', message.data ? message.data.length : 'no data');
+            if (message.data) {
+                const data = "data:image/jpeg;base64," + message.data;
+                setImgData(data);
+            } else {
+                console.warn('Received empty image data');
+            }
         });
 
+        // エラーハンドリングの追加
+        imageTopic.on('error', function (error) {
+            console.error('Error with image topic:', error);
+        });
+
+        console.log('Image topic subscription created');
+
         return () => {
+            console.log('Unsubscribing from image topic');
             imageTopic.unsubscribe();
         };
     }, [ros]);

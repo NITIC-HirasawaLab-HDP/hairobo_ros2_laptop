@@ -35,7 +35,14 @@ def generate_launch_description():
     #     )
     # )
 
-    # 3. Reactサーバーの起動
+    # 3. rosbridge_server の起動
+    launch_rosbridge_server = ExecuteProcess(
+        cmd=['ros2', 'launch', 'rosbridge_server',
+             'rosbridge_websocket_launch.xml'],
+        output='screen'
+    )
+
+    # 4. Reactサーバーの起動
     react_project_dir = './hairobo_react_app'
     react_server = ExecuteProcess(
         cmd=['npm', 'start'],
@@ -47,5 +54,6 @@ def generate_launch_description():
     return LaunchDescription([
         launch_hairobo_teleop,
         # launch_package_b,
+        launch_rosbridge_server,
         react_server
     ])

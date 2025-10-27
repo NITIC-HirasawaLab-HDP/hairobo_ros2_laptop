@@ -14,7 +14,6 @@ find_package(builtin_interfaces REQUIRED)
 
 # Generate interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/RecoveryCommand.msg"
   "msg/RobotStatus.msg"
   "msg/OperationMode.msg"
   "srv/SetOperationMode.srv"
