@@ -4,7 +4,11 @@ import ROSLIB from 'roslib';
 const CAMERA_TOPIC = '/parent_rear_camera/image_raw/compressed';
 const CAMERA_TITLE = 'Parent Rear Camera';
 
-const ParentRearCamera = ({ ros }) => {
+interface ParentRearCameraProps {
+    ros: ROSLIB.Ros | null;
+}
+
+const ParentRearCamera: React.FC<ParentRearCameraProps> = ({ ros }) => {
     const [imgData, setImgData] = useState('');
 
     useEffect(() => {
@@ -18,7 +22,7 @@ const ParentRearCamera = ({ ros }) => {
             messageType: 'sensor_msgs/msg/CompressedImage'
         });
 
-        imageTopic.subscribe(function (message) {
+        imageTopic.subscribe(function (message: any) {
             console.log('Received image from', CAMERA_TOPIC);
             const data = "data:image/jpeg;base64," + message.data;
             setImgData(data);

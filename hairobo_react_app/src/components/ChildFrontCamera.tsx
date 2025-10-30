@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
 
-const CAMERA_TOPIC = '/parent_front_camera/image_raw/compressed';
-const CAMERA_TITLE = 'Parent Front Camera';
+const CAMERA_TOPIC = '/child_front_camera/image_raw/compressed';
+const CAMERA_TITLE = 'Child Front Camera';
 
-const ParentFrontCamera = ({ ros }) => {
+interface ChildFrontCameraProps {
+    ros: ROSLIB.Ros | null;
+}
+
+const ChildFrontCamera: React.FC<ChildFrontCameraProps> = ({ ros }) => {
     const [imgData, setImgData] = useState('');
 
     useEffect(() => {
         if (!ros) {
-            console.log('ROS connection not available');
             return;
         }
-
-        console.log('Setting up image topic subscription for', CAMERA_TOPIC);
 
         const imageTopic = new ROSLIB.Topic({
             ros: ros,
@@ -21,25 +22,13 @@ const ParentFrontCamera = ({ ros }) => {
             messageType: 'sensor_msgs/msg/CompressedImage'
         });
 
-        imageTopic.subscribe(function (message) {
-            console.log('Received image from', CAMERA_TOPIC, 'data length:', message.data ? message.data.length : 'no data');
-            if (message.data) {
-                const data = "data:image/jpeg;base64," + message.data;
-                setImgData(data);
-            } else {
-                console.warn('Received empty image data');
-            }
+        imageTopic.subscribe(function (message: any) {
+            console.log('Received image from', CAMERA_TOPIC);
+            const data = "data:image/jpeg;base64," + message.data;
+            setImgData(data);
         });
-
-        // エラーハンドリングの追加
-        imageTopic.on('error', function (error) {
-            console.error('Error with image topic:', error);
-        });
-
-        console.log('Image topic subscription created');
 
         return () => {
-            console.log('Unsubscribing from image topic');
             imageTopic.unsubscribe();
         };
     }, [ros]);
@@ -62,7 +51,7 @@ const ParentFrontCamera = ({ ros }) => {
                     ) : (
                         <div className="flex flex-col items-center justify-center text-gray-500 text-center w-full h-full">
                             <div className="text-2xl mb-2">📷</div>
-                            <small className="text-sm text-gray-500">画像を待っています...</small>
+                            <small className="text-sm text-gray-500">Waiting for image...</small>
                         </div>
                     )}
                 </div>
@@ -76,4 +65,4 @@ const ParentFrontCamera = ({ ros }) => {
     );
 };
 
-export default ParentFrontCamera;
+export default ChildFrontCamera;

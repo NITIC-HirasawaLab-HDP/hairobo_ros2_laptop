@@ -1,17 +1,22 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import ROSLIB from 'roslib';
 
 const CAMERA_INITIAL_POSITION = { x: 3, y: 3, z: 2 };
 const CAMERA_LOOK_AT = { x: 0, y: 0, z: 0 };
 const ROBOT_BOX_SIZE = { width: 0.5, height: 0.3, depth: 0.2 };
 const ROBOT_BOX_COLOR = 0x00ff00;
 
-const LidarViewer = ({ ros }) => {
-    const viewerContainerRef = useRef(null);
-    const sceneRef = useRef(null);
-    const rendererRef = useRef(null);
-    const cameraRef = useRef(null);
-    const animationFrameRef = useRef(null);
+interface LidarViewerProps {
+    ros: ROSLIB.Ros | null;
+}
+
+const LidarViewer: React.FC<LidarViewerProps> = ({ ros }) => {
+    const viewerContainerRef = useRef<HTMLDivElement>(null);
+    const sceneRef = useRef<THREE.Scene | null>(null);
+    const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+    const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+    const animationFrameRef = useRef<number | null>(null);
 
     useEffect(() => {
         const container = viewerContainerRef.current;
@@ -100,39 +105,29 @@ const LidarViewer = ({ ros }) => {
             }
         }
 
-        // クリーンアップ関数
         return () => {
-            console.log('LidarViewer: クリーンアップ開始');
-
+            console.log('LidarViewer: 3Dビューアのクリーンアップ');
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
-                animationFrameRef.current = null;
             }
+
+            const currentContainer = viewerContainerRef.current;
 
             if (rendererRef.current) {
                 rendererRef.current.dispose();
                 rendererRef.current = null;
             }
 
-            if (container) {
-                container.innerHTML = '';
+            if (currentContainer) {
+                currentContainer.innerHTML = '';
             }
 
             sceneRef.current = null;
             cameraRef.current = null;
-
-            console.log('LidarViewer: クリーンアップ完了');
         };
     }, []);
 
-    return (
-        <div className="w-full h-full flex items-center justify-center bg-black rounded-lg relative">
-            <div
-                ref={viewerContainerRef}
-                className="w-full h-full"
-            />
-        </div>
-    );
+    return <div ref={viewerContainerRef} className="w-full h-full" />;
 };
 
 export default LidarViewer;

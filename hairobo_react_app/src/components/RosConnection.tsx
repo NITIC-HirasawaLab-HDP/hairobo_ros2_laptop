@@ -1,32 +1,44 @@
 import React, { useEffect } from 'react';
 import ROSLIB from 'roslib';
 
-const Rosconnection = ({ rosUrl, rosDomainId, setRos }) => {
+interface RosConnectionProps {
+    rosUrl: string;
+    rosDomainId: number;
+    setRos: (ros: ROSLIB.Ros | null) => void;
+}
+
+const Rosconnection: React.FC<RosConnectionProps> = ({ rosUrl, rosDomainId, setRos }) => {
 
     useEffect(() => {
         console.log('Attempting to connect to ROS at:', rosUrl, 'with domain ID:', rosDomainId);
 
         const ros = new ROSLIB.Ros({
-            url: rosUrl,
-            options: {
-                ros_domain_id: rosDomainId // ROS_DOMAIN_IDを設定する
-            }
+            url: rosUrl
         });
 
         ros.on("connection", () => {
             setRos(ros);
-            document.getElementById("status").innerHTML = "successful";
+            const statusElement = document.getElementById("status");
+            if (statusElement) {
+                statusElement.innerHTML = "successful";
+            }
             console.log('Successfully connected to ROSBridge WebSocket server at:', rosUrl);
         });
 
-        ros.on('error', function (error) {
+        ros.on('error', function (error: any) {
             console.error('Error connecting to ROSBridge WebSocket server:', error);
-            document.getElementById("status").innerHTML = "failed";
+            const statusElement = document.getElementById("status");
+            if (statusElement) {
+                statusElement.innerHTML = "failed";
+            }
         });
 
         ros.on('close', function () {
             console.log('Connection to ROSBridge WebSocket server closed.');
-            document.getElementById("status").innerHTML = "closed";
+            const statusElement = document.getElementById("status");
+            if (statusElement) {
+                statusElement.innerHTML = "closed";
+            }
             setRos(null);
         });
 
