@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
-import './Camera.css';
 
 const CAMERA_TOPIC = '/parent_rear_camera/image_raw/compressed';
 const CAMERA_TITLE = 'Parent Rear Camera';
@@ -31,31 +30,31 @@ const ParentRearCamera = ({ ros }) => {
     }, [ros]);
 
     return (
-        <div className="camera-container">
+        <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg relative">
             {ros ? (
-                <div className="camera-content">
+                <div className="w-full h-full relative flex items-center justify-center">
                     {imgData ? (
                         <>
                             <img
                                 src={imgData}
                                 alt={CAMERA_TITLE}
-                                className="camera-image"
+                                className="w-full h-full object-cover block"
                             />
-                            <div className="camera-overlay">
+                            <div className="absolute top-0 left-0 right-0 bg-black/50 text-white px-3 py-2 text-xs font-medium z-10">
                                 {CAMERA_TOPIC}
                             </div>
                         </>
                     ) : (
-                        <div className="camera-placeholder">
-                            <div className="camera-icon">📷</div>
-                            <small>Waiting for image...</small>
+                        <div className="flex flex-col items-center justify-center text-gray-500 text-center w-full h-full">
+                            <div className="text-2xl mb-2">📷</div>
+                            <small className="text-sm text-gray-500">Waiting for image...</small>
                         </div>
                     )}
                 </div>
             ) : (
-                <div className="camera-disconnected">
-                    <div className="camera-icon">📷</div>
-                    <small>{CAMERA_TITLE}<br />Waiting...</small>
+                <div className="flex flex-col items-center justify-center text-gray-500 text-center w-full h-full">
+                    <div className="text-2xl mb-2">📷</div>
+                    <small className="text-sm text-gray-500">{CAMERA_TITLE}<br />Waiting...</small>
                 </div>
             )}
         </div>

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import './Camera.css';
 
 const CAMERA_INITIAL_POSITION = { x: 3, y: 3, z: 2 };
 const CAMERA_LOOK_AT = { x: 0, y: 0, z: 0 };
@@ -127,14 +126,10 @@ const LidarViewer = ({ ros }) => {
     }, []);
 
     return (
-        <div className="lidar-container">
+        <div className="w-full h-full flex items-center justify-center bg-black rounded-lg relative">
             <div
                 ref={viewerContainerRef}
-                className="lidar-canvas"
-                style={{
-                    width: '100%',
-                    height: '100%'
-                }}
+                className="w-full h-full"
             />
         </div>
     );
