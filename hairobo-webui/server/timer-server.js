@@ -4,8 +4,8 @@ const wss = new WebSocketServer({ port: 8080 });
 
 let timerState = {
     isRunning: false,
-    remainingTime: 300,
-    totalTime: 300,
+    remainingTime: 600,
+    totalTime: 600,
     lastUpdated: Date.now(),
 };
 
@@ -87,4 +87,4 @@ wss.on('connection', (ws) => {
     });
 });
 
-console.log('Timer WebSocket server running on ws://localhost:8080');
+console.log('Timer WebSocket server running on port 8080');
