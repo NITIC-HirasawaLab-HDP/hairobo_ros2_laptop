@@ -1,21 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Play, RotateCcw, Pause } from 'lucide-react';
+import { useTimerSync } from '../../hooks/useTimerSync';
 
 interface TimerBarProps {
-	totalTime?: number; // 秒単位でのトータル時間（デフォルト: 300秒 = 5分）
+	totalTime?: number;
 }
 
 const TimerBar: React.FC<TimerBarProps> = ({ totalTime = 300 }) => {
-	const [remainingTime, setRemainingTime] = useState(totalTime);
-	const [isRunning, setIsRunning] = useState(false);
+	const { remainingTime, isRunning, setRemainingTime, setIsRunning, sendUpdate } = useTimerSync(totalTime);
 	const intervalRef = useRef<number | null>(null);
 
+	// ローカルタイマー（UI用）
 	useEffect(() => {
 		if (isRunning && remainingTime > 0) {
 			intervalRef.current = setInterval(() => {
 				setRemainingTime((prev) => {
 					if (prev <= 0) {
 						setIsRunning(false);
+						sendUpdate('stop', 0);
 						return 0;
 					}
 					return prev - 1;
@@ -33,15 +35,18 @@ const TimerBar: React.FC<TimerBarProps> = ({ totalTime = 300 }) => {
 				clearInterval(intervalRef.current);
 			}
 		};
-	}, [isRunning, remainingTime]);
+	}, [isRunning, remainingTime, setIsRunning, setRemainingTime, sendUpdate]);
 
 	const handleStart = () => {
-		setIsRunning(!isRunning);
+		const newState = !isRunning;
+		setIsRunning(newState);
+		sendUpdate(newState ? 'start' : 'stop');
 	};
 
 	const handleReset = () => {
 		setIsRunning(false);
 		setRemainingTime(totalTime);
+		sendUpdate('reset', totalTime);
 	};
 
 	const percentage = (remainingTime / totalTime) * 100;
