@@ -42,10 +42,10 @@ def generate_launch_description():
         output='screen'
     )
 
-    # 4. Reactサーバーの起動
-    react_project_dir = './hairobo_react_app'
+    # 4. Viteサーバーの起動
+    react_project_dir = './hairobo-webui'
     react_server = ExecuteProcess(
-        cmd=['npm', 'start'],
+        cmd=['npm', 'run', 'dev'],
         cwd=react_project_dir,
         output='screen'
     )
