@@ -1,45 +1,23 @@
 cmake_minimum_required(VERSION 3.8)
 project(hathaway_video_dummy)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+find_package(ament_cmake_auto REQUIRED)
 
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-endif()
+ament_auto_find_build_dependencies()
 
-# Find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(ament_index_cpp REQUIRED)
-
-# Build executable
-add_executable(hathaway_publisher src/hathaway_publisher.cpp)
-ament_target_dependencies(hathaway_publisher
-  rclcpp
-  sensor_msgs
-  OpenCV
-  ament_index_cpp
+ament_auto_add_library(${PROJECT_NAME} SHARED
+    DIRECTORY src
 )
 
-# Install executable
-install(TARGETS hathaway_publisher
-  DESTINATION lib/${PROJECT_NAME}
+rclcpp_components_register_node(${PROJECT_NAME}
+    PLUGIN "hathaway_video_dummy::HathawayPublisher" # C++の登録名
+    EXECUTABLE hathaway_publisher                    # 実行ファイル名
 )
 
-# Install media and launch files
 install(DIRECTORY media launch
   DESTINATION share/${PROJECT_NAME}
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  set(ament_cmake_copyright_FOUND TRUE)
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
-
-ament_package()
+ament_auto_package(
+    USE_SCOPED_HEADER_INSTALL_DIR
+)
