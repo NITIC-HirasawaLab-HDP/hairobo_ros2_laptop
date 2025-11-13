@@ -1,0 +1,57 @@
+import React, { useEffect, useState } from 'react';
+import ROSLIB from 'roslib';
+import Status from '../ui/status';
+
+interface WinchLanProps {
+	ros?: ROSLIB.Ros | null;
+	topicName?: string;
+}
+
+const WinchLan: React.FC<WinchLanProps> = ({ ros = null, topicName = '/winch/lan/vel' }) => {
+	const [vel, setVel] = useState<number | null>(null);
+
+	useEffect(() => {
+		if (!ros) {
+			setVel(null);
+			return;
+		}
+
+		const topic = new ROSLIB.Topic({
+			ros,
+			name: topicName,
+			messageType: 'std_msgs/Float64',
+		});
+
+		const callback = (msg: any) => {
+			try {
+				const raw = (msg && typeof msg.data !== 'undefined') ? msg.data : msg;
+				const num = typeof raw === 'number' ? raw : Number(raw);
+				if (!Number.isFinite(num)) return;
+				setVel(num);
+			} catch (e) {
+				// ignore malformed messages
+			}
+		};
+
+		topic.subscribe(callback);
+
+		return () => {
+			try {
+				topic.unsubscribe(callback);
+			} catch (e) {
+				// ignore
+			}
+		};
+	}, [ros, topicName]);
+
+	const value = vel === null ? 'null' : Math.abs(vel) < 1e-6 ? 'Stopped' : vel.toFixed(2);
+	const valueClassName = vel === null ? 'bg-gray-500/20' : Math.abs(vel) < 1e-6 ? 'bg-green-500/20' : 'bg-red-500/20';
+
+	return (
+		<div className="">
+			<Status title="Winch LAN" value={value} valueClassName={valueClassName} />
+		</div>
+	);
+};
+
+export default WinchLan;

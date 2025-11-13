@@ -3,7 +3,7 @@ import React from 'react';
 interface StatusProps {
 	title: string;
 	value: React.ReactNode;
-	valueClassName?: string;
+	valueClassName?: string; //追加のtailwindcssクラス
 }
 
 const Status: React.FC<StatusProps> = ({ title, value, valueClassName }) => {
@@ -12,7 +12,7 @@ const Status: React.FC<StatusProps> = ({ title, value, valueClassName }) => {
 			<div className="text-base font-semibold text-foreground pl-3">
 				{title}
 			</div>
-			<div className={`backdrop-blur-sm border border-foreground/15 border-gray-300 rounded-full px-3 py-1 ${valueClassName || 'bg-background/20'}`}>
+			<div className={`backdrop-blur-sm border border-foreground/15 border-gray-300 rounded-full px-2 py-0 ${valueClassName || 'bg-background/20'}`}>
 				<div className="text-base font-semibold text-foreground">
 					{value}
 				</div>

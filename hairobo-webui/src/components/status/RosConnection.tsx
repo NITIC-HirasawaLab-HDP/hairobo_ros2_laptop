@@ -73,7 +73,7 @@ const RosConnection: React.FC<RosConnectionProps> = ({ rosUrl, rosDomainId, setR
 	};
 
 	return (
-		<div className="fixed top-4 left-4 z-50">
+		<div className="">
 			<Status
 				title="ROS2"
 				value={getStatusText()}

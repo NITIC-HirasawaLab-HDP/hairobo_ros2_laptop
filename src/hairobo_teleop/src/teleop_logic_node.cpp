@@ -73,12 +73,13 @@ class TeleopLogicNode : public rclcpp::Node {
         parent_cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/parent/cmd_vel", 10);
         child_cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/child/cmd_vel", 10);
         brush_cmd_pub_ = this->create_publisher<std_msgs::msg::Bool>("/brush/command", 10);
-        operation_mode_pub_ = this->create_publisher<hairobo_msgs::msg::OperationMode>("/operation_mode", 10);
+        operation_mode_pub_ = this->create_publisher<std_msgs::msg::Bool>("/operation_mode", 10);
         winch_cmd_pub_ = this->create_publisher<std_msgs::msg::Float64>("/winch/child/vel", 10);
         lan_winch_cmd_pub_ = this->create_publisher<std_msgs::msg::Float64>("/winch/lan/vel", 10);
 
         // 状態変数の初期化
-        current_operation_mode_ = hairobo_msgs::msg::OperationMode::MODE_PARENT;
+        // true == PARENT, false == CHILD
+        current_is_parent_ = true;
         brush_motor_enabled_ = false;
         winch_state_ = WinchState::STOP;
         lan_winch_state_ = WinchState::STOP;
@@ -132,13 +133,13 @@ class TeleopLogicNode : public rclcpp::Node {
 
         // トグル処理: ボタンが押された瞬間を検出
         if (parent_button && !last_parent_button_) {
-            current_operation_mode_ = hairobo_msgs::msg::OperationMode::MODE_PARENT;
+            current_is_parent_ = true;
             publish_operation_mode();
             RCLCPP_INFO(this->get_logger(), "Switched to PARENT operation mode");
         }
 
         if (child_button && !last_child_button_) {
-            current_operation_mode_ = hairobo_msgs::msg::OperationMode::MODE_CHILD;
+            current_is_parent_ = false;
             publish_operation_mode();
             RCLCPP_INFO(this->get_logger(), "Switched to CHILD operation mode");
         }
@@ -187,14 +188,20 @@ class TeleopLogicNode : public rclcpp::Node {
         }
 
         float dpad_ud = msg->axes[DPAD_UD_AXIS];
+        // フラグ：速度が変更されたか
+        bool child_speed_changed = false;
+        bool lan_speed_changed = false;
+
         // 上キーで加速
         if (dpad_ud == 1.0f && last_dpad_ud_ != 1.0f) {
             if (winch_state_ != WinchState::STOP) {
                 current_winch_velocity_ = std::min(MAX_WINCH_VELOCITY, current_winch_velocity_ + WINCH_VELOCITY_STEP);
+                child_speed_changed = true;
                 RCLCPP_INFO(this->get_logger(), "Child Winch speed increased to: %.2f", current_winch_velocity_);
             }
             if (lan_winch_state_ != WinchState::STOP) {
                 current_lan_winch_velocity_ = std::min(MAX_WINCH_VELOCITY, current_lan_winch_velocity_ + WINCH_VELOCITY_STEP);
+                lan_speed_changed = true;
                 RCLCPP_INFO(this->get_logger(), "LAN Winch speed increased to: %.2f", current_lan_winch_velocity_);
             }
         }
@@ -202,13 +209,49 @@ class TeleopLogicNode : public rclcpp::Node {
         else if (dpad_ud == -1.0f && last_dpad_ud_ != -1.0f) {
             if (winch_state_ != WinchState::STOP) {
                 current_winch_velocity_ = std::max(MIN_WINCH_VELOCITY, current_winch_velocity_ - WINCH_VELOCITY_STEP);
+                child_speed_changed = true;
                 RCLCPP_INFO(this->get_logger(), "Child Winch speed decreased to: %.2f", current_winch_velocity_);
             }
             if (lan_winch_state_ != WinchState::STOP) {
                 current_lan_winch_velocity_ = std::max(MIN_WINCH_VELOCITY, current_lan_winch_velocity_ - WINCH_VELOCITY_STEP);
+                lan_speed_changed = true;
                 RCLCPP_INFO(this->get_logger(), "LAN Winch speed decreased to: %.2f", current_lan_winch_velocity_);
             }
         }
+
+        // 速度が変更された場合は、それぞれ現在のウインチ状態に応じた符号付き速度をパブリッシュ
+        if (child_speed_changed) {
+            auto vel_msg = std_msgs::msg::Float64();
+            switch (winch_state_) {
+            case WinchState::STOP:
+                vel_msg.data = 0.0;
+                break;
+            case WinchState::WINDING:
+                vel_msg.data = current_winch_velocity_;
+                break;
+            case WinchState::UNWINDING:
+                vel_msg.data = -current_winch_velocity_;
+                break;
+            }
+            winch_cmd_pub_->publish(vel_msg);
+        }
+
+        if (lan_speed_changed) {
+            auto vel_msg = std_msgs::msg::Float64();
+            switch (lan_winch_state_) {
+            case WinchState::STOP:
+                vel_msg.data = 0.0;
+                break;
+            case WinchState::WINDING:
+                vel_msg.data = current_lan_winch_velocity_;
+                break;
+            case WinchState::UNWINDING:
+                vel_msg.data = -current_lan_winch_velocity_;
+                break;
+            }
+            lan_winch_cmd_pub_->publish(vel_msg);
+        }
+
         last_dpad_ud_ = dpad_ud;
     }
 
@@ -330,9 +373,9 @@ class TeleopLogicNode : public rclcpp::Node {
         twist_msg.angular.z = angular_z;
 
         // 現在の操作モードに応じて適切なトピックに配信
-        if (current_operation_mode_ == hairobo_msgs::msg::OperationMode::MODE_PARENT) {
+        if (current_is_parent_) {
             parent_cmd_vel_pub_->publish(twist_msg);
-        } else if (current_operation_mode_ == hairobo_msgs::msg::OperationMode::MODE_CHILD) {
+        } else {
             child_cmd_vel_pub_->publish(twist_msg);
         }
     }
@@ -347,11 +390,8 @@ class TeleopLogicNode : public rclcpp::Node {
     }
 
     void publish_operation_mode() {
-        auto mode_msg = hairobo_msgs::msg::OperationMode();
-        mode_msg.header.stamp = this->now();
-        mode_msg.header.frame_id = "";
-        mode_msg.mode = current_operation_mode_;
-
+        auto mode_msg = std_msgs::msg::Bool();
+        mode_msg.data = current_is_parent_;
         operation_mode_pub_->publish(mode_msg);
     }
 
@@ -362,7 +402,7 @@ class TeleopLogicNode : public rclcpp::Node {
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr parent_cmd_vel_pub_;
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr child_cmd_vel_pub_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr brush_cmd_pub_;
-    rclcpp::Publisher<hairobo_msgs::msg::OperationMode>::SharedPtr operation_mode_pub_;
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr operation_mode_pub_;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr winch_cmd_pub_;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr lan_winch_cmd_pub_;
 
@@ -372,7 +412,7 @@ class TeleopLogicNode : public rclcpp::Node {
                             UNWINDING };
 
     // 状態変数
-    uint8_t current_operation_mode_;
+    bool current_is_parent_;
     bool brush_motor_enabled_;
     WinchState winch_state_;
     WinchState lan_winch_state_;
