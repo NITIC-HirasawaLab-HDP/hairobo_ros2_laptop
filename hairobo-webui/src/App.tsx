@@ -33,7 +33,7 @@ function App() {
           </div>
 
           <div className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center">
-            <LidarViewer ros={ros} />
+            <LidarViewer ros={ros} topicName="/lidar_points" />
           </div>
         </div>
       </div>

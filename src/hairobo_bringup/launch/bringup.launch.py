@@ -47,7 +47,8 @@ def generate_launch_description():
     react_server = ExecuteProcess(
         cmd=['npm', 'run', 'dev'],
         cwd=react_project_dir,
-        output='screen'
+        output='screen',
+        emulate_tty=True
     )
 
     # これらすべてをリストにして返す
