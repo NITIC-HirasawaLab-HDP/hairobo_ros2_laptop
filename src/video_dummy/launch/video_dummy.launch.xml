@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="video_dummy" exec="video_dummy_node" name="video_dummy_node" output="screen">
+    <param name="video_path" value="$(env HOME)/Dev/Hairobo/hairobo_ws/src/video_dummy/config/video.mp4"/>
+    <param name="publish_rate" value="30.0"/>
+  </node>
+</launch>
