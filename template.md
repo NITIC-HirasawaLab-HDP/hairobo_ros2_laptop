@@ -1,3 +1,5 @@
+
+
 ## CMakeLists.txt
 
 ```cmake
@@ -146,4 +148,117 @@ void クラス名::タイマーコールバック関数名() {
 
 #include "rclcpp_components/register_node_macro.hpp"
 RCLCPP_COMPONENTS_REGISTER_NODE(ネームスペース::クラス名)
+```
+
+## .launch.xml
+```xml
+<?xml version="1.0"?>
+<launch>
+
+  <!-- ノードA：センサやメイン処理 -->
+  <node pkg="package_name" exec="executable_a" name="node_a" ns="ns_a" output="screen">
+    <param name="param_name" value="value"/>              <!-- パラメータ設定 -->
+    <remap from="/original/topic" to="/new/topic"/>       <!-- トピック名変更 -->
+  </node>
+
+  <!-- ノードB：補助処理や可視化 -->
+  <node pkg="package_name" exec="executable_b" name="node_b" ns="ns_b" output="screen">
+    <!-- ここに必要ならparam/remapを追加 -->
+  </node>
+
+</launch>
+```
+
+## bringup.launch.xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <!-- package_a の {hoge}.launch.py をインクルード -->
+    <include file="$(find-pkg-share package_a)/launch/{hoge}.launch.py" />
+
+    <!-- ここに他のパッケージの launch ファイルを追加可能 -->
+    <!-- 例：
+    <include file="$(find-pkg-share package_b)/launch/some_launch.launch.py" />
+    <include file="$(find-pkg-share package_c)/launch/another.launch.xml" />
+    -->
+
+</launch>
+```
+
+>[!important]
+>以下のpythonを使ったlaunchファイルは極力使用せず、上記のxml形式を使用すること。
+
+## .launch.py
+```python
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    # --- ノードAの設定 ---
+    node_a = Node(
+        package='package_name',       # 実行するパッケージ名
+        executable='executable_a',    # setup.pyのエントリポイントで指定した実行ファイル名
+        name='node_a',                # ノード名（ros2 node listで表示される名前）
+        namespace='ns_a',             # 名前空間（任意）
+        output='screen',              # ログを端末に出力
+        parameters=[
+            {'param_name': 'value'}   # パラメータ設定（必要な場合）
+        ],
+        remappings=[
+            ('/original/topic', '/new/topic') # トピック名の変更（必要な場合）
+        ]
+    )
+
+    # --- ノードBの設定 ---
+    node_b = Node(
+        package='package_name',       # 同じパッケージでも、別のパッケージでも可
+        executable='executable_b',
+        name='node_b',
+        namespace='ns_b',
+        output='screen'
+    )
+
+    # LaunchDescriptionにリスト形式で記述して返す
+    return LaunchDescription([
+        node_a,
+        node_b,
+    ])
+```
+
+## bringup.launch.py
+```python
+import os
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+# ---add imports here---
+
+# ----------------------
+
+
+def generate_launch_description():
+
+    # get package_a launch file path
+    package_a_launch_dir = os.path.join(
+        get_package_share_directory('package_a'),
+        'launch'
+    )
+
+    # include package_a launch file
+    launch_package_a = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(package_a_launch_dir, '{hoge}.launch.py')
+        )
+    )
+
+    # ---add packages here---
+
+    # -----------------------
+
+    return LaunchDescription([
+        launch_package_a,
+    ])
+
 ```

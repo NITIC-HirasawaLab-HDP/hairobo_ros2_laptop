@@ -43,7 +43,6 @@ def generate_launch_description():
     react_project_dir = './hairobo-webui'
 
     # 4. Viteサーバー (npm run dev:vite を実行)
-    #    'concurrently' を介さず、ROS 2が直接 'npm run dev:vite' を起動する
     vite_server = ExecuteProcess(
         cmd=['npm', 'run', 'dev:vite'],
         cwd=react_project_dir,
@@ -53,19 +52,18 @@ def generate_launch_description():
     )
 
     # 5. タイマーサーバー (npm run dev:server を実行)
-    #    'concurrently' を介さず、ROS 2が直接 'npm run dev:server' を起動する
     timer_server = ExecuteProcess(
         cmd=['npm', 'run', 'dev:server'],
         cwd=react_project_dir,
         output='screen',
-        emulate_tty=True,  # 👈 こちらも念のため tty をエミュレート
-        name='timer_server' # 👈 ログのプレフィックスが [timer_server-X] になります
+        emulate_tty=True,  # emulate tty
+        name='timer_server' # log prefix: [timer_server-X]
     )
 
     # これらすべてをリストにして返す
     return LaunchDescription([
         launch_hairobo_teleop,
         launch_rosbridge_server,
-        vite_server,   # 'npm run dev' だったものを
-        timer_server   # この2つに分離しました
+        vite_server,
+        timer_server
     ])
