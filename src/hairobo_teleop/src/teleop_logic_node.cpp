@@ -14,8 +14,8 @@ class TeleopLogicNode : public rclcpp::Node {
 
     // DUALSHOCK 4 ボタン番号対応表
     // ボタン番号: ボタン名
-    // 0: ○ボタン
-    // 1: ×ボタン
+    // 0: ×ボタン
+    // 1: ○ボタン
     // 2: △ボタン
     // 3: □ボタン
     // 4: L1ボタン
@@ -41,18 +41,20 @@ class TeleopLogicNode : public rclcpp::Node {
     // 7: 十字キー上下
 
     // ボタン番号（DUALSHOCK 4）
-    static constexpr int PARENT_MODE_BUTTON = 0;      // ○ボタン（親機操作モード）
-    static constexpr int CHILD_MODE_BUTTON = 1;       // ×ボタン（子機操作モード）
-    static constexpr int LAN_WINCH_WIND_BUTTON = 2;   // △ボタン（LANウインチ巻き取り）
-    static constexpr int LAN_WINCH_UNWIND_BUTTON = 3; // □ボタン（LANウインチ繰り出し）
-    static constexpr int BRUSH_MOTOR_ON_BUTTON = 9;   // OPTIONSボタン（ブラシモーターON）
-    static constexpr int BRUSH_MOTOR_OFF_BUTTON = 8;  // SHAREボタン（ブラシモーターOFF）
+    static constexpr int PARENT_MODE_BUTTON = 5;          // R1ボタン（親機操作モード）
+    static constexpr int CHILD_MODE_BUTTON = 4;           // L1ボタン（子機操作モード）
+    static constexpr int LAN_WINCH_WIND_BUTTON = 1;       // ○ボタン（LANウインチ巻き取り）
+    static constexpr int LAN_WINCH_UNWIND_BUTTON = 3;     // □ボタン（LANウインチ繰り出し）
+    static constexpr int LAN_WINCH_SPEED_UP_BUTTON = 2;   // △ボタン（LANウインチ速度上昇）
+    static constexpr int LAN_WINCH_SPEED_DOWN_BUTTON = 0; // ×ボタン（LANウインチ速度減少）
+    static constexpr int BRUSH_MOTOR_ON_BUTTON = 9;       // OPTIONSボタン（ブラシモーターON）
+    static constexpr int BRUSH_MOTOR_OFF_BUTTON = 8;      // SHAREボタン（ブラシモーターOFF）
 
     // アナログスティック軸番号
     static constexpr int LINEAR_AXIS = 1;  // 左スティック上下（前後移動）
     static constexpr int ANGULAR_AXIS = 3; // 右スティック左右（回転）
     static constexpr int DPAD_LR_AXIS = 6; // 十字キー左右（子機ウインチ巻き取り/繰り出し）
-    static constexpr int DPAD_UD_AXIS = 7; // 十字キー上下 (ウインチ速度調整)
+    static constexpr int DPAD_UD_AXIS = 7; // 十字キー上下（子機ウインチ速度調整）
 
     // 速度設定
     static constexpr double MAX_LINEAR_VELOCITY = 1.0;    // 最大直進速度 [m/s]
@@ -93,6 +95,8 @@ class TeleopLogicNode : public rclcpp::Node {
         last_brush_off_button_ = false;
         last_lan_wind_button_ = false;
         last_lan_unwind_button_ = false;
+        last_lan_speed_up_button_ = false;
+        last_lan_speed_down_button_ = false;
         last_dpad_lr_ = 0.0f;
         last_dpad_ud_ = 0.0f;
 
@@ -112,8 +116,11 @@ class TeleopLogicNode : public rclcpp::Node {
         // ブラシモーター制御の処理
         handle_brush_control(msg);
 
-        // ウインチ速度調整の処理
-        handle_winch_speed_control(msg);
+        // 子機ウインチ速度調整の処理
+        handle_child_winch_speed_control(msg);
+
+        // LANウインチ速度調整の処理
+        handle_lan_winch_speed_control(msg);
 
         // 子機ウインチ制御の処理
         handle_child_winch_control(msg);
@@ -182,45 +189,33 @@ class TeleopLogicNode : public rclcpp::Node {
         last_brush_off_button_ = brush_off_button;
     }
 
-    void handle_winch_speed_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
+    void handle_child_winch_speed_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         if (static_cast<int>(msg->axes.size()) <= DPAD_UD_AXIS) {
             return;
         }
 
         float dpad_ud = msg->axes[DPAD_UD_AXIS];
-        // フラグ：速度が変更されたか
-        bool child_speed_changed = false;
-        bool lan_speed_changed = false;
+        bool speed_changed = false;
 
         // 上キーで加速
         if (dpad_ud == 1.0f && last_dpad_ud_ != 1.0f) {
             if (winch_state_ != WinchState::STOP) {
                 current_winch_velocity_ = std::min(MAX_WINCH_VELOCITY, current_winch_velocity_ + WINCH_VELOCITY_STEP);
-                child_speed_changed = true;
+                speed_changed = true;
                 RCLCPP_INFO(this->get_logger(), "Child Winch speed increased to: %.2f", current_winch_velocity_);
-            }
-            if (lan_winch_state_ != WinchState::STOP) {
-                current_lan_winch_velocity_ = std::min(MAX_WINCH_VELOCITY, current_lan_winch_velocity_ + WINCH_VELOCITY_STEP);
-                lan_speed_changed = true;
-                RCLCPP_INFO(this->get_logger(), "LAN Winch speed increased to: %.2f", current_lan_winch_velocity_);
             }
         }
         // 下キーで減速
         else if (dpad_ud == -1.0f && last_dpad_ud_ != -1.0f) {
             if (winch_state_ != WinchState::STOP) {
                 current_winch_velocity_ = std::max(MIN_WINCH_VELOCITY, current_winch_velocity_ - WINCH_VELOCITY_STEP);
-                child_speed_changed = true;
+                speed_changed = true;
                 RCLCPP_INFO(this->get_logger(), "Child Winch speed decreased to: %.2f", current_winch_velocity_);
-            }
-            if (lan_winch_state_ != WinchState::STOP) {
-                current_lan_winch_velocity_ = std::max(MIN_WINCH_VELOCITY, current_lan_winch_velocity_ - WINCH_VELOCITY_STEP);
-                lan_speed_changed = true;
-                RCLCPP_INFO(this->get_logger(), "LAN Winch speed decreased to: %.2f", current_lan_winch_velocity_);
             }
         }
 
-        // 速度が変更された場合は、それぞれ現在のウインチ状態に応じた符号付き速度をパブリッシュ
-        if (child_speed_changed) {
+        // 速度が変更された場合は現在のウインチ状態に応じた符号付き速度をパブリッシュ
+        if (speed_changed) {
             auto vel_msg = std_msgs::msg::Float64();
             switch (winch_state_) {
             case WinchState::STOP:
@@ -236,7 +231,34 @@ class TeleopLogicNode : public rclcpp::Node {
             winch_cmd_pub_->publish(vel_msg);
         }
 
-        if (lan_speed_changed) {
+        last_dpad_ud_ = dpad_ud;
+    }
+
+    void handle_lan_winch_speed_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
+        bool speed_up_button = static_cast<int>(msg->buttons.size()) > LAN_WINCH_SPEED_UP_BUTTON && msg->buttons[LAN_WINCH_SPEED_UP_BUTTON];
+        bool speed_down_button = static_cast<int>(msg->buttons.size()) > LAN_WINCH_SPEED_DOWN_BUTTON && msg->buttons[LAN_WINCH_SPEED_DOWN_BUTTON];
+        bool speed_changed = false;
+
+        // △ボタンで加速
+        if (speed_up_button && !last_lan_speed_up_button_) {
+            if (lan_winch_state_ != WinchState::STOP) {
+                current_lan_winch_velocity_ = std::min(MAX_WINCH_VELOCITY, current_lan_winch_velocity_ + WINCH_VELOCITY_STEP);
+                speed_changed = true;
+                RCLCPP_INFO(this->get_logger(), "LAN Winch speed increased to: %.2f", current_lan_winch_velocity_);
+            }
+        }
+
+        // ×ボタンで減速
+        if (speed_down_button && !last_lan_speed_down_button_) {
+            if (lan_winch_state_ != WinchState::STOP) {
+                current_lan_winch_velocity_ = std::max(MIN_WINCH_VELOCITY, current_lan_winch_velocity_ - WINCH_VELOCITY_STEP);
+                speed_changed = true;
+                RCLCPP_INFO(this->get_logger(), "LAN Winch speed decreased to: %.2f", current_lan_winch_velocity_);
+            }
+        }
+
+        // 速度が変更された場合は現在のウインチ状態に応じた符号付き速度をパブリッシュ
+        if (speed_changed) {
             auto vel_msg = std_msgs::msg::Float64();
             switch (lan_winch_state_) {
             case WinchState::STOP:
@@ -252,7 +274,8 @@ class TeleopLogicNode : public rclcpp::Node {
             lan_winch_cmd_pub_->publish(vel_msg);
         }
 
-        last_dpad_ud_ = dpad_ud;
+        last_lan_speed_up_button_ = speed_up_button;
+        last_lan_speed_down_button_ = speed_down_button;
     }
 
     void handle_child_winch_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
@@ -311,7 +334,7 @@ class TeleopLogicNode : public rclcpp::Node {
         bool unwind_button = static_cast<int>(msg->buttons.size()) > LAN_WINCH_UNWIND_BUTTON && msg->buttons[LAN_WINCH_UNWIND_BUTTON];
         bool state_changed = false;
 
-        // △ボタンで巻き取り/停止
+        // ○ボタンで巻き取り/停止
         if (wind_button && !last_lan_wind_button_) {
             if (lan_winch_state_ == WinchState::WINDING) {
                 lan_winch_state_ = WinchState::STOP;
@@ -426,6 +449,8 @@ class TeleopLogicNode : public rclcpp::Node {
     bool last_brush_off_button_;
     bool last_lan_wind_button_;
     bool last_lan_unwind_button_;
+    bool last_lan_speed_up_button_;
+    bool last_lan_speed_down_button_;
     float last_dpad_lr_;
     float last_dpad_ud_;
 };
