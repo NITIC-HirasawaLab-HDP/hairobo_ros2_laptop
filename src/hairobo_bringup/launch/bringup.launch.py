@@ -19,19 +19,6 @@ def generate_launch_description():
         )
     )
 
-    # # package_b の launch ファイルパスを取得
-    # package_b_launch_dir = os.path.join(
-    #     get_package_share_directory('package_b'),
-    #     'launch'
-    # )
-
-    # # package_b の launch ファイルをインクルード
-    # launch_package_b = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         os.path.join(package_b_launch_dir, 'control.launch.py')
-    #     )
-    # )
-
     # 2. rosbridge_server の起動
     launch_rosbridge_server = ExecuteProcess(
         cmd=['ros2', 'launch', 'rosbridge_server',

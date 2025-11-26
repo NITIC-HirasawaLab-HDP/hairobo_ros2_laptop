@@ -174,14 +174,17 @@ RCLCPP_COMPONENTS_REGISTER_NODE(ネームスペース::クラス名)
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-    <!-- package_a の {hoge}.launch.py をインクルード -->
-    <include file="$(find-pkg-share package_a)/launch/{hoge}.launch.py" />
+    <!-- パッケージ名 の {hoge}.launch.py をインクルード -->
+    <include file="$(find-pkg-share パッケージ名)/launch/ほげ.launch.py" />
 
     <!-- ここに他のパッケージの launch ファイルを追加可能 -->
     <!-- 例：
     <include file="$(find-pkg-share package_b)/launch/some_launch.launch.py" />
     <include file="$(find-pkg-share package_c)/launch/another.launch.xml" />
     -->
+
+    <!-- コマンドから他のファイルを実行 -->
+    <executable cmd="コマンド" cwd="$(var ディレクトリ)" output="screen"></executable>
 
 </launch>
 ```

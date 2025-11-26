@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <!-- Joy node (DUALSHOCK 4など) -->
+    <node pkg="joy" exec="joy_node" name="joy_node" output="screen">
+        <param name="device" value="/dev/input/js0"/>
+        <param name="deadzone" value="0.1"/>
+        <param name="autorepeat_rate" value="20.0"/>
+    </node>
+
+    <!-- Teleopロジックノード -->
+    <node pkg="hairobo_teleop"
+        exec="teleop_logic_node" 
+        name="teleop_logic_node" 
+        output="screen"/>
+
+</launch>
