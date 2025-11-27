@@ -3,7 +3,7 @@ import ROSLIB from 'roslib';
 import Title from '../ui/title';
 import { useCompressedImage } from './useCompressedImage';
 
-const CAMERA_TOPIC = '/parent_front_camera/image_raw/compressed';
+const CAMERA_TOPIC = '/child_front_camera/image_raw/compressed';
 const CAMERA_TITLE = 'Child Front Camera';
 
 interface ChildFrontCameraProps {
