@@ -92,8 +92,9 @@ ros2 pkg create --build-type ament_cmake <パッケージ名>
 ### 依存関係の更新
 
 ```bash
-rosdep update
-rosdep install --from-paths src --ignore-src -r -y
+rosdep update --rosdistro=$ROS_DISTRO
+
+rosdep install --from-paths ./ -i -y --rosdistro ${ROS_DISTRO}
 ```
 
 ### テストの実行
