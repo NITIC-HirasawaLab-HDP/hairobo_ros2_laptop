@@ -36,6 +36,7 @@ install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}/
   FILES_MATCHING PATTERN "*.launch.py"
+  PATTERN "*.launch.xml"
 )
 
 if(BUILD_TESTING)

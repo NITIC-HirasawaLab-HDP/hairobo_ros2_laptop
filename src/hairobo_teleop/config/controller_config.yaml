@@ -4,8 +4,8 @@
 teleop_logic_node:
   ros__parameters:
     # 移動速度設定
-    max_linear_velocity: 1.0 # 最大直進速度 [m/s]
-    max_angular_velocity: 1.0 # 最大回転速度 [rad/s]
+    max_linear_velocity: 2.0 # 最大直進速度 [m/s]
+    max_angular_velocity: 2.0 # 最大回転速度 [rad/s]
 
     # ボタン設定 (DUALSHOCK 4デフォルト)
     deadman_button: 4 # L1ボタン（デッドマンスイッチ）
