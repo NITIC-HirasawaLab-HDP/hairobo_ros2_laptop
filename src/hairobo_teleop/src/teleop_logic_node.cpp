@@ -109,6 +109,7 @@ class TeleopLogicNode : public rclcpp::Node {
     }
 
   private:
+    // ジョイスティック入力コールバック
     void joy_callback(const sensor_msgs::msg::Joy::SharedPtr msg) {
         // 操作モード切り替えの処理
         handle_mode_switching(msg);
@@ -132,6 +133,7 @@ class TeleopLogicNode : public rclcpp::Node {
         handle_movement_control(msg);
     }
 
+    // 操作モード配信
     void handle_mode_switching(const sensor_msgs::msg::Joy::SharedPtr msg) {
         // 親機操作モードボタン
         bool parent_button = static_cast<int>(msg->buttons.size()) > PARENT_MODE_BUTTON && msg->buttons[PARENT_MODE_BUTTON];
@@ -156,6 +158,7 @@ class TeleopLogicNode : public rclcpp::Node {
         last_child_button_ = child_button;
     }
 
+    // ブラシモーター制御の処理
     void handle_brush_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         // ブラシモーター制御ボタン
         bool brush_on_button = static_cast<int>(msg->buttons.size()) > BRUSH_MOTOR_ON_BUTTON && msg->buttons[BRUSH_MOTOR_ON_BUTTON];
@@ -189,6 +192,7 @@ class TeleopLogicNode : public rclcpp::Node {
         last_brush_off_button_ = brush_off_button;
     }
 
+    // 子機ウインチ速度調整の処理
     void handle_child_winch_speed_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         if (static_cast<int>(msg->axes.size()) <= DPAD_UD_AXIS) {
             return;
@@ -234,6 +238,7 @@ class TeleopLogicNode : public rclcpp::Node {
         last_dpad_ud_ = dpad_ud;
     }
 
+    // LANウインチ速度調整の処理
     void handle_lan_winch_speed_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         bool speed_up_button = static_cast<int>(msg->buttons.size()) > LAN_WINCH_SPEED_UP_BUTTON && msg->buttons[LAN_WINCH_SPEED_UP_BUTTON];
         bool speed_down_button = static_cast<int>(msg->buttons.size()) > LAN_WINCH_SPEED_DOWN_BUTTON && msg->buttons[LAN_WINCH_SPEED_DOWN_BUTTON];
@@ -278,6 +283,7 @@ class TeleopLogicNode : public rclcpp::Node {
         last_lan_speed_down_button_ = speed_down_button;
     }
 
+    // 子機ウインチ制御の処理
     void handle_child_winch_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         if (static_cast<int>(msg->axes.size()) <= DPAD_LR_AXIS) {
             return;
@@ -329,6 +335,7 @@ class TeleopLogicNode : public rclcpp::Node {
         last_dpad_lr_ = dpad_lr;
     }
 
+    // LANウインチ制御の処理
     void handle_lan_winch_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         bool wind_button = static_cast<int>(msg->buttons.size()) > LAN_WINCH_WIND_BUTTON && msg->buttons[LAN_WINCH_WIND_BUTTON];
         bool unwind_button = static_cast<int>(msg->buttons.size()) > LAN_WINCH_UNWIND_BUTTON && msg->buttons[LAN_WINCH_UNWIND_BUTTON];
@@ -378,6 +385,7 @@ class TeleopLogicNode : public rclcpp::Node {
         last_lan_unwind_button_ = unwind_button;
     }
 
+    // 移動制御の処理
     void handle_movement_control(const sensor_msgs::msg::Joy::SharedPtr msg) {
         // 設定された軸を使用してスティック入力を取得
         double linear_x = 0.0;
@@ -403,6 +411,7 @@ class TeleopLogicNode : public rclcpp::Node {
         }
     }
 
+    // 停止コマンド配信の処理
     void publish_stop_command() {
         auto twist_msg = geometry_msgs::msg::Twist();
         // すべての値は0.0で初期化済み
@@ -412,6 +421,7 @@ class TeleopLogicNode : public rclcpp::Node {
         child_cmd_vel_pub_->publish(twist_msg);
     }
 
+    // 操作モード配信
     void publish_operation_mode() {
         auto mode_msg = std_msgs::msg::Bool();
         mode_msg.data = current_is_parent_;
