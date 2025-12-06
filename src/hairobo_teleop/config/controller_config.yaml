@@ -17,27 +17,3 @@ teleop_logic_node:
     # アナログスティック軸設定
     linear_axis: 1 # 左スティック上下（前後移動）
     angular_axis: 3 # 右スティック左右（回転）
-
-# 参考: DUALSHOCK 4ボタン番号
-# buttons[0]: ○ (Circle)
-# buttons[1]: × (Cross)
-# buttons[2]: △ (Triangle)
-# buttons[3]: □ (Square)
-# buttons[4]: L1
-# buttons[5]: R1
-# buttons[6]: L2
-# buttons[7]: R2
-# buttons[8]: Share
-# buttons[9]: Options
-# buttons[10]: L3 (左スティック押し込み)
-# buttons[11]: R3 (右スティック押し込み)
-# buttons[12]: PSボタン
-# buttons[13]: タッチパッド
-
-# 参考: DUALSHOCK 4アナログ軸番号
-# axes[0]: 左スティック左右 (-1.0: 左, +1.0: 右)
-# axes[1]: 左スティック上下 (-1.0: 下, +1.0: 上)
-# axes[2]: L2トリガー (0.0: 離す, +1.0: 押す)
-# axes[3]: 右スティック左右 (-1.0: 左, +1.0: 右)
-# axes[4]: 右スティック上下 (-1.0: 下, +1.0: 上)
-# axes[5]: R2トリガー (0.0: 離す, +1.0: 押す)
