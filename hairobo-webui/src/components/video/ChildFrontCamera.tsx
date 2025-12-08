@@ -14,7 +14,7 @@ const ChildFrontCamera: React.FC<ChildFrontCameraProps> = ({ ros }) => {
 	const imgData = useCompressedImage(ros, CAMERA_TOPIC);
 
 	return (
-		<div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg relative">
+		<div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
 			{imgData ? (
 				<>
 					<img
@@ -27,13 +27,7 @@ const ChildFrontCamera: React.FC<ChildFrontCameraProps> = ({ ros }) => {
 					</div>
 				</>
 			) : (
-				<div className="flex flex-col items-center justify-center text-gray-500 text-center w-full h-full">
-					<Title title={CAMERA_TITLE} />
-					<div className="text-2xl mb-2 mt-4">📷</div>
-					<small className="text-sm text-gray-500">
-						{ros ? '画像を待っています...' : 'Waiting...'}
-					</small>
-				</div>
+				<p className="text-lg font-semibold text-gray-600">{CAMERA_TITLE}</p>
 			)}
 		</div>
 	);
