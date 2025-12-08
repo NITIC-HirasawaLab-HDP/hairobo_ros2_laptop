@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ROSLIB from 'roslib';
+import appIcon from './assets/icon.png';
 // カメラ・LiDAR・ROS接続コンポーネントをインポート
 import ParentFrontCamera from './components/video/ParentFrontCamera';
 import ParentRearCamera from './components/video/ParentRearCamera';
@@ -20,6 +21,9 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-transparent overflow-hidden gap-0">
+      <div className="fixed top-4 left-4 z-50 flex items-center">
+        <img src={appIcon} alt="Hairoboアイコン" className="h-20 drop-shadow" />
+      </div>
       {/* ステータス (ヘッダー) */}
       <header className="flex my-3 justify-center gap-4">
         <RosConnection rosUrl={`ws://${window.location.hostname}:9090`} rosDomainId={89} setRos={setRos} />
