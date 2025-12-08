@@ -12,6 +12,7 @@ import WinchLan from './components/status/WinchLan';
 import WinchChild from './components/status/WinchChild';
 import TimerBar from './components/ui/TimerBar';
 import CameraModal from './components/ui/CameraModal';
+import PowerButton from './components/buttons/power';
 
 function App() {
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
@@ -22,6 +23,7 @@ function App() {
       {/* ステータス (ヘッダー) */}
       <header className="flex my-3 justify-center gap-4">
         <RosConnection rosUrl={`ws://${window.location.hostname}:9090`} rosDomainId={89} setRos={setRos} />
+        <PowerButton />
         <OperationMode ros={ros} topicName="/operation_mode" />
         <BrushCommand ros={ros} topicName="/brush/command" />
         <WinchLan ros={ros} topicName="/winch/lan/vel" />
