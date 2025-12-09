@@ -76,12 +76,12 @@ function App() {
       <footer className="fixed bottom-4 w-full px-6 flex items-center justify-between z-50">
         <div className="w-1/2 flex items-center justify-center">
           <div className="flex items-center">
-            <img src={appIcon} alt="Hairoboアイコン" className="h-20 drop-shadow" />
+            <img src={appIcon} alt="Hairoboアイコン" className="h-24 drop-shadow" />
             <div className="ml-4 flex flex-col">
-              <p className="text-xl font-bold text-violet-700">HirasawaLAB. Hairo Decommitioning Project</p>
+              <p className="text-xl font-bold text-[#632BDB]">HirasawaLAB. Hairo Decommitioning Project</p>
               <div className="flex">
-                <p className="text-6xl font-bold text-violet-700 leading-none">SHIHO</p>
-                <p className="text-sm text-violet-700 self-end">Version 1.0.0</p>
+                <p className="text-6xl font-bold text-[#632BDB] leading-none">SHIHO</p>
+                <p className="text-sm text-[#632BDB] self-end">UMBILICAL SERIES V2.0.0</p>
               </div>
             </div>
           </div>

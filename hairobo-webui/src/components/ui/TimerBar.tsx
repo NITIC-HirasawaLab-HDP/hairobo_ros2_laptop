@@ -55,24 +55,57 @@ const TimerBar: React.FC<TimerBarProps> = ({ totalTime = 300 }) => {
 
 	// 色を残り時間に応じて変化させる
 	const getBarColor = () => {
-		if (percentage > 50) return 'bg-black';
-		if (percentage > 20) return 'bg-orange-500';
-		return 'bg-red-500';
+		if (percentage > 50) return 'bg-violet-500'; //残り5分まで紫
+		if (percentage > 20) return 'bg-yellow-500'; //残り2分まで黄
+		if (percentage > 10) return 'bg-orange-500'; //残り1分までオレンジ
+		return 'bg-red-500'; //残り1分切ったら赤
 	};
+
+	// 画面全体の背景色を同期させる
+	useEffect(() => {
+		// グラデーションだとtransitionが効かないため、単色に変更してなめらかに変化させる
+		const getBackgroundColor = () => {
+			// 通常時
+			if (percentage > 50) return '#f0f4f8';
+			// 残り2分まで (黄色系)
+			if (percentage > 20) return '#fefce8';
+			// 残り1分まで (オレンジ系)
+			if (percentage > 10) return '#fff7ed';
+			// 残り1分切ったら(黒系)
+			if (percentage <= 0) return '#1a1a1a';
+			// 残り1分切ったら (赤系)
+			return '#fef2f2';
+		};
+
+		// 以前のクラス設定があれば削除
+		const bgColors = ['bg-slate-50', 'bg-yellow-50', 'bg-orange-50', 'bg-red-50'];
+		document.body.classList.remove(...bgColors);
+
+		// 背景色とトランジションを適用
+		document.body.style.transition = 'background-color 1s ease';
+		document.body.style.backgroundColor = getBackgroundColor();
+		document.body.style.minHeight = '100vh';
+
+		return () => {
+			document.body.style.transition = '';
+			document.body.style.backgroundColor = '';
+			document.body.style.minHeight = '';
+		};
+	}, [percentage]);
 
 	return (
 		<div className="w-full">
-			<div className="bg-white backdrop-blur-2xl border border-black shadow-2xl rounded-2xl overflow-hidden">
+			<div className="bg-slate-50 rounded-2xl border border-gray-300 shadow-lg">
 				<div className="px-6 py-4">
 					{/* タイマー情報とプログレスバー */}
 					<div className="flex items-center gap-4">
 						{/* 残り時間表示 */}
-						<div className="text-2xl font-bold text-black tabular-nums whitespace-nowrap">
+						<div className="text-2xl font-bold text-slate-700 tabular-nums whitespace-nowrap">
 							{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
 						</div>
 
 						{/* プログレスバー */}
-						<div className="relative flex-1 h-3 border rounded-full overflow-hidden shadow-inner">
+						<div className="relative flex-1 h-3 border bg-gray-200 border-gray-300 rounded-full overflow-hidden shadow-inner">
 							<div
 								className={`h-full ${getBarColor()} transition-all duration-1000 ease-linear rounded-full relative overflow-hidden`}
 								style={{ width: `${percentage}%` }}
@@ -84,7 +117,7 @@ const TimerBar: React.FC<TimerBarProps> = ({ totalTime = 300 }) => {
 						<div className="flex items-center gap-3">
 							<button
 								onClick={handleStart}
-								className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold transition-all duration-200 border bg-white hover:bg-gray-200 text-black shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95`}
+								className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold transition-all duration-200 border bg-[#632BDB] hover:bg-[#532AAD] text-white shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95`}
 							>
 								{isRunning ? (
 									<>

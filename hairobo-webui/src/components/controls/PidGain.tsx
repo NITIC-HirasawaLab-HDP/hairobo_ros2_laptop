@@ -92,12 +92,12 @@ const PidGain: React.FC<PidGainProps> = ({ ros }) => {
 	};
 
 	// 入力フィールドの共通スタイル
-	const inputClass = "w-full px-1 py-2 border border-slate-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 text-sm";
+	const inputClass = "w-full px-1 py-2 bg-slate-50 border border-slate-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 text-sm";
 	const labelClass = "text-sm font-bold text-slate-500 mb-1 block text-center";
 
 	return (
 		<div className="bg-white/80 rounded-2xl border border-gray-300 shadow-lg p-4 w-full max-w-sm mx-auto">
-			<h2 className="text-2xl font-bold text-slate-700 text-center mb-2">PID Gain</h2>
+			<h2 className="text-xl font-semibold text-slate-700 text-center mb-2">PID Gain</h2>
 
 			{/* Left PID Form */}
 			<div className="mb-4">
@@ -183,7 +183,7 @@ const PidGain: React.FC<PidGainProps> = ({ ros }) => {
 			<div className="flex justify-center">
 				<button
 					onClick={handleSubmit}
-					className="bg-violet-700 hover:bg-violet-800 text-white font-bold py-2 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95"
+					className="bg-[#632BDB] hover:bg-[#532AAD] text-white font-bold py-2 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95"
 				>
 					Update
 				</button>

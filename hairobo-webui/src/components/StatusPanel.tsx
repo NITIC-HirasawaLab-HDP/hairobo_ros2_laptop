@@ -13,7 +13,7 @@ type StatusPanelProps = {
 
 function StatusPanel({ ros, setRos }: StatusPanelProps) {
 	return (
-		<aside className="w-full h-[80vh] max-h-[960px] rounded-2xl bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg p-6 flex flex-col items-center gap-6">
+		<aside className="w-full h-[80vh] max-h-[960px] rounded-2xl bg-slate-50 backdrop-blur-lg border border-gray-300 shadow-lg p-6 flex flex-col items-center gap-6">
 			<h2 className="w-full text-xl font-semibold text-gray-700 text-center">Status Panel</h2>
 			<div className="w-full flex flex-col justify-center gap-4">
 				<RosConnection rosUrl={`ws://${window.location.hostname}:9090`} rosDomainId={89} setRos={setRos} />
