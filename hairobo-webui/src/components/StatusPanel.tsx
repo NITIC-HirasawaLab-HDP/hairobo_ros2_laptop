@@ -5,6 +5,7 @@ import OperationMode from './status/OperationMode';
 import BrushCommand from './status/BrushCommand';
 import WinchLan from './status/WinchLan';
 import WinchChild from './status/WinchChild';
+import Battery from './status/Battery';
 
 type StatusPanelProps = {
 	ros: ROSLIB.Ros | null;
@@ -21,6 +22,7 @@ function StatusPanel({ ros, setRos }: StatusPanelProps) {
 				<BrushCommand ros={ros} topicName="/brush/command" />
 				<WinchLan ros={ros} topicName="/winch/lan/vel" />
 				<WinchChild ros={ros} topicName="/winch/child/vel" />
+				<Battery ros={ros} />
 			</div>
 		</aside>
 	);

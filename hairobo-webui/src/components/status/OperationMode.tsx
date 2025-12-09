@@ -42,7 +42,7 @@ const OperationMode: React.FC<OperationModeProps> = ({ ros = null, topicName = '
 		};
 	}, [ros, topicName]);
 
-	const value = isParent === null ? 'null' : isParent ? 'Parent' : 'Child';
+	const value = isParent === null ? '--' : isParent ? 'Parent' : 'Child';
 	const valueClassName = isParent === null ? 'bg-gray-500/20' : isParent ? 'bg-green-500/20' : 'bg-blue-500/20';
 
 	return (

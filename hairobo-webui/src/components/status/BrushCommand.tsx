@@ -42,7 +42,7 @@ const BrushCommand: React.FC<BrushCommandProps> = ({ ros = null, topicName = '/b
 		};
 	}, [ros, topicName]);
 
-	const value = isParent === null ? 'null' : isParent ? 'ON' : 'OFF';
+	const value = isParent === null ? '--' : isParent ? 'ON' : 'OFF';
 	const valueClassName = isParent === null ? 'bg-gray-500/20' : isParent ? 'bg-red-500/20' : 'bg-green-500/20';
 
 	return (

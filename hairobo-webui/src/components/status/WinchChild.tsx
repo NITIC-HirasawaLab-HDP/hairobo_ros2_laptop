@@ -44,7 +44,7 @@ const WinchChild: React.FC<WinchChildProps> = ({ ros = null, topicName = '/winch
 		};
 	}, [ros, topicName]);
 
-	const value = vel === null ? 'null' : Math.abs(vel) < 1e-6 ? 'Stopped' : vel.toFixed(2);
+	const value = vel === null ? '--' : Math.abs(vel) < 1e-6 ? 'Stopped' : vel.toFixed(2);
 	const valueClassName = vel === null ? 'bg-gray-500/20' : Math.abs(vel) < 1e-6 ? 'bg-green-500/20' : 'bg-red-500/20';
 
 	return (
