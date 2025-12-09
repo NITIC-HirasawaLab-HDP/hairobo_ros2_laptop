@@ -61,8 +61,6 @@ const PowerButton: React.FC<PowerButtonProps> = ({
 
 		// 初期状態または変更時に送信（依存配列の値が変わるたびに実行されるため）
 		const currentState = isControlled ? Boolean(checked) : internalChecked;
-		// 接続が確立されるまで少し待つ必要がある場合がありますが、
-		// ここではシンプルに接続確立後に送信されることを期待します
 		if (ros.isConnected) {
 			publishState(currentState);
 		}
@@ -72,7 +70,7 @@ const PowerButton: React.FC<PowerButtonProps> = ({
 			powerTopic.unadvertise();
 			ros.close();
 		};
-	}, []); // マウント時に一度だけ接続設定を行う（実際には状態変更時の送信ロジックを分けるのがベターですが、シンプルにします）
+	}, []); // マウント時に一度だけ接続設定を行う
 
 	// 状態変更時にメッセージを送信するためのEffect
 	React.useEffect(() => {
