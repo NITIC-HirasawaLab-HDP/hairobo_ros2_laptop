@@ -1,4 +1,4 @@
-import PowerButton from './buttons/power';
+import PowerButton from './controls/power';
 
 function ControlPanel() {
 	return (
