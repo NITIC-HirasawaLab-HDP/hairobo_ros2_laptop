@@ -44,31 +44,28 @@ function stopTimer() {
 }
 
 wss.on('connection', (ws) => {
-    console.log('Client connected');
-
     // 接続時に現在の状態を送信
     ws.send(JSON.stringify(timerState));
 
     ws.on('message', (message) => {
         const data = JSON.parse(message.toString());
-        console.log('Received message:', data);
 
         switch (data.action) {
             case 'start':
-                console.log('Starting timer...');
+                console.log('Timer started');
                 timerState.isRunning = true;
                 timerState.lastUpdated = Date.now();
                 startTimer();
                 break;
             case 'stop':
-                console.log('Stopping timer...');
+                console.log('Timer stopped');
                 timerState.isRunning = false;
                 timerState.remainingTime = data.remainingTime;
                 timerState.lastUpdated = Date.now();
                 stopTimer();
                 break;
             case 'reset':
-                console.log('Resetting timer...');
+                console.log('Timer reset');
                 timerState.isRunning = false;
                 timerState.remainingTime = data.remainingTime;
                 timerState.totalTime = data.remainingTime;
@@ -77,13 +74,11 @@ wss.on('connection', (ws) => {
                 break;
         }
 
-        console.log('Broadcasting state:', timerState);
         // すべてのクライアントに更新を配信
         broadcast(timerState);
     });
 
     ws.on('close', () => {
-        console.log('Client disconnected');
     });
 });
 
