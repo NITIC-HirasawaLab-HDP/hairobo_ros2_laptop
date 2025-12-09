@@ -33,13 +33,14 @@ const PowerButton: React.FC<PowerButtonProps> = ({
 	};
 
 	return (
-		<div className={`flex items-center gap-3 ${className}`}>
+		<div className={`flex items-center justify-center gap-3 w-full ${className}`}>
 			{/* Toggle */}
 			<Toggle
 				title={label}
 				checked={current}
 				onChange={handleChange}
 				disabled={disabled}
+				className="w-full"
 			/>
 		</div>
 	);

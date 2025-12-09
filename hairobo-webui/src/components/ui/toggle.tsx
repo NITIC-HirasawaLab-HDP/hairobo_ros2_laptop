@@ -35,9 +35,9 @@ const Toggle: React.FC<ToggleProps> = ({
 	};
 
 	return (
-		<div className="bg-background/10 backdrop-blur-md px-1 py-1 rounded-full border border-foreground/10 border-gray-300 shadow-xl flex items-center justify-center gap-3">
+		<div className={`bg-white px-1 py-1 rounded-full border border-foreground/10 border-gray-300 shadow-xl flex items-center justify-between gap-3 w-full ${className}`}>
 			{/* タイトル */}
-			<div className="text-base font-semibold text-foreground pl-3">
+			<div className="text-base font-semibold text-foreground pl-1">
 				{title}
 			</div>
 
@@ -49,7 +49,7 @@ const Toggle: React.FC<ToggleProps> = ({
 				disabled={disabled}
 				onClick={handleToggle}
 				className={`relative inline-flex w-11 h-6 items-center rounded-full border border-transparent p-0.5 transition-colors duration-200 focus:outline-none ${active ? 'bg-[#632BDB] justify-end' : 'bg-gray-200 justify-start'
-					} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
+					} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
 			>
 				{/* ノブ */}
 				<span

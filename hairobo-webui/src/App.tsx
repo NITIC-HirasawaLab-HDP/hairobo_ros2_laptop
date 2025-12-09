@@ -6,14 +6,10 @@ import ParentFrontCamera from './components/video/ParentFrontCamera';
 import ParentRearCamera from './components/video/ParentRearCamera';
 import ChildFrontCamera from './components/video/ChildFrontCamera';
 import LidarViewer from './components/video/LidarViewer';
-import RosConnection from './components/status/RosConnection';
-import OperationMode from './components/status/OperationMode';
-import BrushCommand from './components/status/BrushCommand';
-import WinchLan from './components/status/WinchLan';
-import WinchChild from './components/status/WinchChild';
 import TimerBar from './components/ui/TimerBar';
 import CameraModal from './components/ui/CameraModal';
-import PowerButton from './components/buttons/power';
+import ControlPanel from './components/ControlPanel';
+import StatusPanel from './components/StatusPanel';
 
 function App() {
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
@@ -24,46 +20,42 @@ function App() {
       <div className="fixed top-4 left-4 z-50 flex items-center">
         <img src={appIcon} alt="Hairoboアイコン" className="h-20 drop-shadow" />
       </div>
-      {/* ステータス (ヘッダー) */}
-      <header className="flex my-3 justify-center gap-4">
-        <RosConnection rosUrl={`ws://${window.location.hostname}:9090`} rosDomainId={89} setRos={setRos} />
-        <PowerButton />
-        <OperationMode ros={ros} topicName="/operation_mode" />
-        <BrushCommand ros={ros} topicName="/brush/command" />
-        <WinchLan ros={ros} topicName="/winch/lan/vel" />
-        <WinchChild ros={ros} topicName="/winch/child/vel" />
-      </header>
 
       {/* 画像表示エリア */}
-      <main className={`flex-1 flex items-center justify-center mb-26 ${expandedCamera ? 'blur-sm' : ''}`}>
-        <div className="grid grid-cols-2 grid-rows-2 gap-8 w-[90vw] h-[80vh] max-w-7xl max-h-[960px]">
-          <div
-            className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-            onClick={() => setExpandedCamera('parent-front')}
-          >
-            <ParentFrontCamera ros={ros} />
+      <main className="flex-1 flex items-center justify-center mb-26">
+        <div className="flex items-center gap-8 w-[95vw] max-w-7xl">
+          <StatusPanel ros={ros} setRos={setRos} />
+          <div className={`grid grid-cols-2 grid-rows-2 gap-8 flex-1 h-[80vh] max-h-[960px] ${expandedCamera ? 'blur-sm' : ''}`}>
+            <div
+              className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => setExpandedCamera('parent-front')}
+            >
+              <ParentFrontCamera ros={ros} />
+            </div>
+
+            <div
+              className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => setExpandedCamera('parent-rear')}
+            >
+              <ParentRearCamera ros={ros} />
+            </div>
+
+            <div
+              className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => setExpandedCamera('child-front')}
+            >
+              <ChildFrontCamera ros={ros} />
+            </div>
+
+            <div
+              className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => setExpandedCamera('lidar')}
+            >
+              <LidarViewer ros={ros} topicName="/lidar_points" />
+            </div>
           </div>
 
-          <div
-            className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-            onClick={() => setExpandedCamera('parent-rear')}
-          >
-            <ParentRearCamera ros={ros} />
-          </div>
-
-          <div
-            className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-            onClick={() => setExpandedCamera('child-front')}
-          >
-            <ChildFrontCamera ros={ros} />
-          </div>
-
-          <div
-            className="w-full h-full rounded-2xl overflow-hidden bg-white/80 backdrop-blur-lg border border-gray-300 shadow-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-            onClick={() => setExpandedCamera('lidar')}
-          >
-            <LidarViewer ros={ros} topicName="/lidar_points" />
-          </div>
+          <ControlPanel />
         </div>
       </main>
 
