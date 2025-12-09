@@ -48,13 +48,12 @@ const Toggle: React.FC<ToggleProps> = ({
 				aria-checked={active}
 				disabled={disabled}
 				onClick={handleToggle}
-				className={`relative inline-flex items-center transition-colors duration-150 rounded-full w-12 h-6 focus:outline-none ${active ? 'bg-[#632BDB]' : 'bg-gray-200'
-					} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+				className={`relative inline-flex w-11 h-6 items-center rounded-full border border-transparent p-0.5 transition-colors duration-200 focus:outline-none ${active ? 'bg-[#632BDB] justify-end' : 'bg-gray-200 justify-start'
+					} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
 			>
 				{/* ノブ */}
 				<span
-					className={`inline-block bg-white rounded-full h-5 w-5 transform transition-transform duration-150 ${active ? 'translate-x-6' : 'translate-x-1'
-						}`}
+					className="inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200"
 				/>
 			</button>
 		</div>
