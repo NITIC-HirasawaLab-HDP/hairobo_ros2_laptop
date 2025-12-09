@@ -73,10 +73,18 @@ function App() {
       />
 
       {/* タイマー (フッター) + ロゴ */}
-      <footer className="fixed bottom-4 w-full px-8 flex items-center justify-between z-50">
-        <div className="w-1/2 flex">
-          <img src={appIcon} alt="Hairoboアイコン" className="h-16 drop-shadow" />
-          <h2 className="text-2xl font-bold text-gray-700 ml-4">Hairobo</h2>
+      <footer className="fixed bottom-4 w-full px-6 flex items-center justify-between z-50">
+        <div className="w-1/2 flex items-center justify-center">
+          <div className="flex items-center">
+            <img src={appIcon} alt="Hairoboアイコン" className="h-20 drop-shadow" />
+            <div className="ml-4 flex flex-col">
+              <p className="text-xl font-bold text-violet-700">HirasawaLAB. Hairo Decommitioning Project</p>
+              <div className="flex">
+                <p className="text-6xl font-bold text-violet-700 leading-none">SHIHO</p>
+                <p className="text-sm text-violet-700 self-end">Version 1.0.0</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="w-1/2">
           <TimerBar totalTime={600} />

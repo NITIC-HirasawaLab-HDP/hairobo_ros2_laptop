@@ -61,7 +61,7 @@ const TimerBar: React.FC<TimerBarProps> = ({ totalTime = 300 }) => {
 	};
 
 	return (
-		<div className="w-full max-w-5xl mx-auto">
+		<div className="w-full">
 			<div className="bg-white backdrop-blur-2xl border border-black shadow-2xl rounded-2xl overflow-hidden">
 				<div className="px-6 py-4">
 					{/* タイマー情報とプログレスバー */}
