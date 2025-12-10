@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Toggle from '../ui/toggle';
 import ROSLIB from 'roslib';
 
 interface PowerButtonProps {
+	ros: ROSLIB.Ros | null;
 	checked?: boolean;
 	onChange?: (checked: boolean) => void;
 	disabled?: boolean;
@@ -11,6 +12,7 @@ interface PowerButtonProps {
 }
 
 const PowerButton: React.FC<PowerButtonProps> = ({
+	ros,
 	checked,
 	onChange,
 	disabled = false,
@@ -18,82 +20,56 @@ const PowerButton: React.FC<PowerButtonProps> = ({
 	label = 'Power',
 }) => {
 	const isControlled = checked !== undefined;
-	const [internalChecked, setInternalChecked] = React.useState<boolean>(
+	const [internalChecked, setInternalChecked] = useState<boolean>(
 		checked !== undefined ? Boolean(checked) : true
 	);
 
-	// ROS接続とトピックの管理
-	React.useEffect(() => {
-		// ROSへの接続（WebSocketのURLは環境に合わせて変更してください）
-		const ros = new ROSLIB.Ros({
-			url: 'ws://localhost:9090'
-		});
-
-		// トピックの定義
-		const powerTopic = new ROSLIB.Topic({
-			ros: ros,
-			name: '/power',
-			messageType: 'std_msgs/Bool'
-		});
-
-		// 接続時の処理
-		ros.on('connection', () => {
-			console.log('Connected to websocket server.');
-			// 常時アドバタイズするためにadvertiseを呼ぶ
-			powerTopic.advertise();
-		});
-
-		ros.on('error', (error) => {
-			console.log('Error connecting to websocket server: ', error);
-		});
-
-		ros.on('close', () => {
-			console.log('Connection to websocket server closed.');
-		});
-
-		// 現在の状態を送信する関数
-		const publishState = (state: boolean) => {
-			const msg = new ROSLIB.Message({
-				data: state
-			});
-			powerTopic.publish(msg);
-		};
-
-		// 初期状態または変更時に送信（依存配列の値が変わるたびに実行されるため）
-		const currentState = isControlled ? Boolean(checked) : internalChecked;
-		if (ros.isConnected) {
-			publishState(currentState);
-		}
-
-		// クリーンアップ
-		return () => {
-			powerTopic.unadvertise();
-			ros.close();
-		};
-	}, []); // マウント時に一度だけ接続設定を行う
-
-	// 状態変更時にメッセージを送信するためのEffect
-	React.useEffect(() => {
-		const ros = new ROSLIB.Ros({ url: 'ws://localhost:9090' });
-		const powerTopic = new ROSLIB.Topic({
-			ros: ros,
-			name: '/power',
-			messageType: 'std_msgs/Bool'
-		});
-
-		ros.on('connection', () => {
-			const currentState = isControlled ? Boolean(checked) : internalChecked;
-			const msg = new ROSLIB.Message({ data: currentState });
-			powerTopic.publish(msg);
-			ros.close(); // 送信だけして閉じる（常時接続は上のEffectで管理）
-		});
-	}, [checked, internalChecked, isControlled]);
-
-	React.useEffect(() => {
-		if (isControlled) setInternalChecked(Boolean(checked));
-	}, [checked, isControlled]);
+	const topicRef = useRef<ROSLIB.Topic | null>(null);
 
 	const current = isControlled ? Boolean(checked) : internalChecked;
+
+	// ROS接続とトピックの管理
+	useEffect(() => {
+		if (!ros) {
+			return;
+		}
+
+		// トピックの設定
+		const powerTopic = new ROSLIB.Topic({
+			ros: ros,
+			name: '/power',
+			messageType: 'std_msgs/Bool'
+		});
+
+		powerTopic.advertise();
+		topicRef.current = powerTopic;
+
+		// 初期値を送信
+		const msg = new ROSLIB.Message({
+			data: current
+		});
+		powerTopic.publish(msg);
+
+		return () => {
+			powerTopic.unadvertise();
+			topicRef.current = null;
+		};
+	}, [ros]);
+
+	// 値変更時の送信処理
+	useEffect(() => {
+		if (topicRef.current) {
+			const msg = new ROSLIB.Message({
+				data: current
+			});
+			topicRef.current.publish(msg);
+		}
+	}, [current]);
+
+	// Propsからの状態同期
+	useEffect(() => {
+		if (isControlled) setInternalChecked(Boolean(checked));
+	}, [checked, isControlled]);
 
 	const handleChange = (next: boolean) => {
 		if (!isControlled) setInternalChecked(next);
