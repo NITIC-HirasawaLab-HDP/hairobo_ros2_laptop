@@ -49,7 +49,7 @@ const EncoderRight: React.FC<EncoderRProps> = ({ ros }) => {
 	return (
 		<Status
 			title="Encoder Right"
-			value={encoderValue.toString()}
+			value={(Math.trunc(encoderValue * 100) / 100).toFixed(2)}
 			valueClassName="bg-blue-500/20"
 		/>
 	);
