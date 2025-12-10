@@ -8,11 +8,13 @@ interface BrushCommandProps {
 }
 
 const BrushCommand: React.FC<BrushCommandProps> = ({ ros = null, topicName = '/brush/command' }) => {
-	const [isParent, setIsParent] = useState<boolean | null>(null);
+	const [isParent, setIsParent] = useState<boolean | null>(() => {
+		const saved = localStorage.getItem('brush_command_state');
+		return saved !== null ? saved === 'true' : null;
+	});
 
 	useEffect(() => {
 		if (!ros) {
-			setIsParent(null);
 			return;
 		}
 
@@ -25,7 +27,9 @@ const BrushCommand: React.FC<BrushCommandProps> = ({ ros = null, topicName = '/b
 		const callback = (msg: any) => {
 			try {
 				// std_msgs/Bool carries a `data` boolean field
-				setIsParent(Boolean(msg.data));
+				const val = Boolean(msg.data);
+				setIsParent(val);
+				localStorage.setItem('brush_command_state', val.toString());
 			} catch (e) {
 				// ignore malformed messages
 			}

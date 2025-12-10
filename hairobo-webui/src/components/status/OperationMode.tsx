@@ -8,11 +8,13 @@ interface OperationModeProps {
 }
 
 const OperationMode: React.FC<OperationModeProps> = ({ ros = null, topicName = '/operation_mode' }) => {
-	const [isParent, setIsParent] = useState<boolean | null>(null);
+	const [isParent, setIsParent] = useState<boolean | null>(() => {
+		const saved = localStorage.getItem('operation_mode_is_parent');
+		return saved !== null ? saved === 'true' : null;
+	});
 
 	useEffect(() => {
 		if (!ros) {
-			setIsParent(null);
 			return;
 		}
 
@@ -25,7 +27,9 @@ const OperationMode: React.FC<OperationModeProps> = ({ ros = null, topicName = '
 		const callback = (msg: any) => {
 			try {
 				// std_msgs/Bool carries a `data` boolean field
-				setIsParent(Boolean(msg.data));
+				const val = Boolean(msg.data);
+				setIsParent(val);
+				localStorage.setItem('operation_mode_is_parent', val.toString());
 			} catch (e) {
 				// ignore malformed messages
 			}

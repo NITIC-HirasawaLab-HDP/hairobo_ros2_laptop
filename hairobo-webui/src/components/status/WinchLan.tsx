@@ -8,11 +8,13 @@ interface WinchLanProps {
 }
 
 const WinchLan: React.FC<WinchLanProps> = ({ ros = null, topicName = '/winch/lan/vel' }) => {
-	const [vel, setVel] = useState<number | null>(null);
+	const [vel, setVel] = useState<number | null>(() => {
+		const saved = localStorage.getItem('winch_lan_vel');
+		return saved !== null ? parseFloat(saved) : null;
+	});
 
 	useEffect(() => {
 		if (!ros) {
-			setVel(null);
 			return;
 		}
 
@@ -28,6 +30,7 @@ const WinchLan: React.FC<WinchLanProps> = ({ ros = null, topicName = '/winch/lan
 				const num = typeof raw === 'number' ? raw : Number(raw);
 				if (!Number.isFinite(num)) return;
 				setVel(num);
+				localStorage.setItem('winch_lan_vel', num.toString());
 			} catch (e) {
 				// ignore malformed messages
 			}

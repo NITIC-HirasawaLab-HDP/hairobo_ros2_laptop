@@ -7,7 +7,10 @@ interface EncoderLProps {
 }
 
 const EncoderLeft: React.FC<EncoderLProps> = ({ ros }) => {
-	const [encoderValue, setEncoderValue] = useState<number | null>(null);
+	const [encoderValue, setEncoderValue] = useState<number | null>(() => {
+		const saved = localStorage.getItem('encoder_left_value');
+		return saved !== null ? parseFloat(saved) : null;
+	});
 
 	useEffect(() => {
 		if (!ros) return;
@@ -22,6 +25,7 @@ const EncoderLeft: React.FC<EncoderLProps> = ({ ros }) => {
 		// メッセージを受信したときの処理
 		encoderTopic.subscribe((message: any) => {
 			setEncoderValue(message.data);
+			localStorage.setItem('encoder_left_value', message.data.toString());
 		});
 
 		// コンポーネントのアンマウント時に購読を解除
