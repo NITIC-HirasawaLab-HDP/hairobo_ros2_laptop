@@ -74,7 +74,7 @@ const TimerBar: React.FC<TimerBarProps> = ({ totalTime = 300 }) => {
 			// 残り1分切ったら(黒系)
 			if (percentage <= 0) return '#1a1a1a';
 			// 残り1分切ったら (赤系)
-			return '#fef2f2';
+			return '#ff3d3d';
 		};
 
 		// 以前のクラス設定があれば削除
