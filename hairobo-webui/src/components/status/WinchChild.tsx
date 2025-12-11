@@ -8,12 +8,11 @@ interface WinchChildProps {
 }
 
 const WinchChild: React.FC<WinchChildProps> = ({ ros = null, topicName = '/winch/child/vel' }) => {
-	const [vel, setVel] = useState<number | null>(() => {
-		const saved = localStorage.getItem('winch_child_vel');
-		return saved !== null ? parseFloat(saved) : null;
-	});
+	const [vel, setVel] = useState<number | null>(null);
 
 	useEffect(() => {
+		setVel(null);
+
 		if (!ros) {
 			return;
 		}
@@ -30,7 +29,6 @@ const WinchChild: React.FC<WinchChildProps> = ({ ros = null, topicName = '/winch
 				const num = typeof raw === 'number' ? raw : Number(raw);
 				if (!Number.isFinite(num)) return;
 				setVel(num);
-				localStorage.setItem('winch_child_vel', num.toString());
 			} catch (e) {
 				// ignore malformed messages
 			}

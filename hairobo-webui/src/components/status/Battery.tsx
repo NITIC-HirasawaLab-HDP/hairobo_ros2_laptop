@@ -10,12 +10,11 @@ interface BatteryProps {
 }
 
 const Battery: React.FC<BatteryProps> = ({ ros }) => {
-	const [batteryLevel, setBatteryLevel] = useState<number | null>(() => {
-		const saved = localStorage.getItem('battery_level');
-		return saved !== null ? parseFloat(saved) : null;
-	});
+	const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
 
 	useEffect(() => {
+		setBatteryLevel(null);
+
 		if (!ros) return;
 
 		// バッテリー情報のトピックを作成
@@ -28,7 +27,6 @@ const Battery: React.FC<BatteryProps> = ({ ros }) => {
 		// メッセージを受信したときの処理
 		batteryTopic.subscribe((message: any) => {
 			setBatteryLevel(message.data);
-			localStorage.setItem('battery_level', message.data.toString());
 		});
 
 		// コンポーネントのアンマウント時に購読を解除
