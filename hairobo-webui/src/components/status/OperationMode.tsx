@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ROSLIB from 'roslib';
 import Status from '../ui/status';
 
@@ -8,14 +8,30 @@ interface OperationModeProps {
 }
 
 const OperationMode: React.FC<OperationModeProps> = ({ ros = null, topicName = '/operation_mode' }) => {
-	const [isParent, setIsParent] = useState<boolean | null>(null);
+	const storageKey = `status_panel_${topicName}`;
+	const [isParent, setIsParent] = useState<boolean | null>(() => {
+		const saved = sessionStorage.getItem(storageKey);
+		return saved ? JSON.parse(saved) : null;
+	});
+	const hasConnected = useRef(false);
 
 	useEffect(() => {
-		setIsParent(null);
+		if (isParent !== null) {
+			sessionStorage.setItem(storageKey, JSON.stringify(isParent));
+		} else {
+			sessionStorage.removeItem(storageKey);
+		}
+	}, [isParent, storageKey]);
 
+	useEffect(() => {
 		if (!ros) {
+			if (hasConnected.current) {
+				setIsParent(null);
+			}
 			return;
 		}
+
+		hasConnected.current = true;
 
 		const topic = new ROSLIB.Topic({
 			ros,

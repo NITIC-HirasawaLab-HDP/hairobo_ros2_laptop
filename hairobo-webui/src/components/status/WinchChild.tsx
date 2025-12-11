@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ROSLIB from 'roslib';
 import Status from '../ui/status';
 
@@ -8,14 +8,30 @@ interface WinchChildProps {
 }
 
 const WinchChild: React.FC<WinchChildProps> = ({ ros = null, topicName = '/winch/child/vel' }) => {
-	const [vel, setVel] = useState<number | null>(null);
+	const storageKey = `status_panel_${topicName}`;
+	const [vel, setVel] = useState<number | null>(() => {
+		const saved = sessionStorage.getItem(storageKey);
+		return saved ? parseFloat(saved) : null;
+	});
+	const hasConnected = useRef(false);
 
 	useEffect(() => {
-		setVel(null);
+		if (vel !== null) {
+			sessionStorage.setItem(storageKey, vel.toString());
+		} else {
+			sessionStorage.removeItem(storageKey);
+		}
+	}, [vel, storageKey]);
 
+	useEffect(() => {
 		if (!ros) {
+			if (hasConnected.current) {
+				setVel(null);
+			}
 			return;
 		}
+
+		hasConnected.current = true;
 
 		const topic = new ROSLIB.Topic({
 			ros,

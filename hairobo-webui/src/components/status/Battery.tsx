@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ROSLIB from 'roslib';
 import Status from '../ui/status';
 
@@ -10,12 +10,30 @@ interface BatteryProps {
 }
 
 const Battery: React.FC<BatteryProps> = ({ ros }) => {
-	const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
+	const storageKey = 'status_panel_battery';
+	const [batteryLevel, setBatteryLevel] = useState<number | null>(() => {
+		const saved = sessionStorage.getItem(storageKey);
+		return saved ? parseFloat(saved) : null;
+	});
+	const hasConnected = useRef(false);
 
 	useEffect(() => {
-		setBatteryLevel(null);
+		if (batteryLevel !== null) {
+			sessionStorage.setItem(storageKey, batteryLevel.toString());
+		} else {
+			sessionStorage.removeItem(storageKey);
+		}
+	}, [batteryLevel]);
 
-		if (!ros) return;
+	useEffect(() => {
+		if (!ros) {
+			if (hasConnected.current) {
+				setBatteryLevel(null);
+			}
+			return;
+		}
+
+		hasConnected.current = true;
 
 		// バッテリー情報のトピックを作成
 		const batteryTopic = new ROSLIB.Topic({

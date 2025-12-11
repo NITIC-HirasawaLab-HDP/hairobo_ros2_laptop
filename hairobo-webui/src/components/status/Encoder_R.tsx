@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ROSLIB from 'roslib';
 import Status from '../ui/status';
 
@@ -7,12 +7,30 @@ interface EncoderRProps {
 }
 
 const EncoderRight: React.FC<EncoderRProps> = ({ ros }) => {
-	const [encoderValue, setEncoderValue] = useState<number | null>(null);
+	const storageKey = 'status_panel_encoder_right';
+	const [encoderValue, setEncoderValue] = useState<number | null>(() => {
+		const saved = sessionStorage.getItem(storageKey);
+		return saved ? parseFloat(saved) : null;
+	});
+	const hasConnected = useRef(false);
 
 	useEffect(() => {
-		setEncoderValue(null);
+		if (encoderValue !== null) {
+			sessionStorage.setItem(storageKey, encoderValue.toString());
+		} else {
+			sessionStorage.removeItem(storageKey);
+		}
+	}, [encoderValue]);
 
-		if (!ros) return;
+	useEffect(() => {
+		if (!ros) {
+			if (hasConnected.current) {
+				setEncoderValue(null);
+			}
+			return;
+		}
+
+		hasConnected.current = true;
 
 		// エンコーダー左のトピックを作成
 		const encoderTopic = new ROSLIB.Topic({
