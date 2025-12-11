@@ -3,6 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 #include <std_msgs/msg/bool.hpp>
+#include <std_msgs/msg/float32.hpp>
 #include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/header.hpp>
 
@@ -76,8 +77,8 @@ class TeleopLogicNode : public rclcpp::Node {
         child_cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/child/cmd_vel", 10);
         brush_cmd_pub_ = this->create_publisher<std_msgs::msg::Bool>("/brush/command", 10);
         operation_mode_pub_ = this->create_publisher<std_msgs::msg::Bool>("/operation_mode", 10);
-        winch_cmd_pub_ = this->create_publisher<std_msgs::msg::Float64>("/winch/child/vel", 10);
-        lan_winch_cmd_pub_ = this->create_publisher<std_msgs::msg::Float64>("/winch/lan/vel", 10);
+        winch_cmd_pub_ = this->create_publisher<std_msgs::msg::Float32>("/winch/child/vel", 10);
+        lan_winch_cmd_pub_ = this->create_publisher<std_msgs::msg::Float32>("/winch/lan/vel", 10);
 
         // 状態変数の初期化
         // true == PARENT, false == CHILD
@@ -220,16 +221,16 @@ class TeleopLogicNode : public rclcpp::Node {
 
         // 速度が変更された場合は現在のウインチ状態に応じた符号付き速度をパブリッシュ
         if (speed_changed) {
-            auto vel_msg = std_msgs::msg::Float64();
+            auto vel_msg = std_msgs::msg::Float32();
             switch (winch_state_) {
             case WinchState::STOP:
-                vel_msg.data = 0.0;
+                vel_msg.data = 0.0f;
                 break;
             case WinchState::WINDING:
-                vel_msg.data = current_winch_velocity_;
+                vel_msg.data = static_cast<float>(current_winch_velocity_);
                 break;
             case WinchState::UNWINDING:
-                vel_msg.data = -current_winch_velocity_;
+                vel_msg.data = static_cast<float>(-current_winch_velocity_);
                 break;
             }
             winch_cmd_pub_->publish(vel_msg);
@@ -264,16 +265,16 @@ class TeleopLogicNode : public rclcpp::Node {
 
         // 速度が変更された場合は現在のウインチ状態に応じた符号付き速度をパブリッシュ
         if (speed_changed) {
-            auto vel_msg = std_msgs::msg::Float64();
+            auto vel_msg = std_msgs::msg::Float32();
             switch (lan_winch_state_) {
             case WinchState::STOP:
-                vel_msg.data = 0.0;
+                vel_msg.data = 0.0f;
                 break;
             case WinchState::WINDING:
-                vel_msg.data = current_lan_winch_velocity_;
+                vel_msg.data = static_cast<float>(current_lan_winch_velocity_);
                 break;
             case WinchState::UNWINDING:
-                vel_msg.data = -current_lan_winch_velocity_;
+                vel_msg.data = static_cast<float>(-current_lan_winch_velocity_);
                 break;
             }
             lan_winch_cmd_pub_->publish(vel_msg);
@@ -317,16 +318,16 @@ class TeleopLogicNode : public rclcpp::Node {
         }
 
         if (state_changed) {
-            auto vel_msg = std_msgs::msg::Float64();
+            auto vel_msg = std_msgs::msg::Float32();
             switch (winch_state_) {
             case WinchState::STOP:
-                vel_msg.data = 0.0;
+                vel_msg.data = 0.0f;
                 break;
             case WinchState::WINDING:
-                vel_msg.data = current_winch_velocity_;
+                vel_msg.data = static_cast<float>(current_winch_velocity_);
                 break;
             case WinchState::UNWINDING:
-                vel_msg.data = -current_winch_velocity_;
+                vel_msg.data = static_cast<float>(-current_winch_velocity_);
                 break;
             }
             winch_cmd_pub_->publish(vel_msg);
@@ -366,16 +367,16 @@ class TeleopLogicNode : public rclcpp::Node {
         }
 
         if (state_changed) {
-            auto vel_msg = std_msgs::msg::Float64();
+            auto vel_msg = std_msgs::msg::Float32();
             switch (lan_winch_state_) {
             case WinchState::STOP:
-                vel_msg.data = 0.0;
+                vel_msg.data = 0.0f;
                 break;
             case WinchState::WINDING:
-                vel_msg.data = current_lan_winch_velocity_;
+                vel_msg.data = static_cast<float>(current_lan_winch_velocity_);
                 break;
             case WinchState::UNWINDING:
-                vel_msg.data = -current_lan_winch_velocity_;
+                vel_msg.data = static_cast<float>(-current_lan_winch_velocity_);
                 break;
             }
             lan_winch_cmd_pub_->publish(vel_msg);
@@ -436,8 +437,8 @@ class TeleopLogicNode : public rclcpp::Node {
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr child_cmd_vel_pub_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr brush_cmd_pub_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr operation_mode_pub_;
-    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr winch_cmd_pub_;
-    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr lan_winch_cmd_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr winch_cmd_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr lan_winch_cmd_pub_;
 
     // ウインチの状態
     enum class WinchState { STOP,

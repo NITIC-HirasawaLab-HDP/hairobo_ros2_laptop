@@ -36,7 +36,7 @@ const WinchLan: React.FC<WinchLanProps> = ({ ros = null, topicName = '/winch/lan
 		const topic = new ROSLIB.Topic({
 			ros,
 			name: topicName,
-			messageType: 'std_msgs/Float64',
+			messageType: 'std_msgs/Float32',
 		});
 
 		const callback = (msg: any) => {
