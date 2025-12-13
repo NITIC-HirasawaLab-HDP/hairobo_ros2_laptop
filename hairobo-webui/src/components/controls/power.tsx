@@ -21,7 +21,7 @@ const PowerButton: React.FC<PowerButtonProps> = ({
 }) => {
 	const isControlled = checked !== undefined;
 	const [internalChecked, setInternalChecked] = useState<boolean>(
-		checked !== undefined ? Boolean(checked) : true
+		checked !== undefined ? Boolean(checked) : false // 初期値はfalse
 	);
 
 	const topicRef = useRef<ROSLIB.Topic | null>(null);
