@@ -78,7 +78,7 @@ function App() {
           <div className="flex items-center">
             <img src={appIcon} alt="Hairoboアイコン" className="h-24 drop-shadow" />
             <div className="ml-4 flex flex-col">
-              <p className="text-xl font-bold text-[#632BDB]">HirasawaLAB. Hairo Decommitioning Project</p>
+              <p className="text-xl font-bold text-[#632BDB]">Hirasawa Lab. Hairo Decommissioning Project</p>
               <div className="flex">
                 <p className="text-6xl font-bold text-[#632BDB] leading-none">SHIHO</p>
                 <p className="text-sm text-[#632BDB] self-end">UMBILICAL SERIES V2.0.0</p>
