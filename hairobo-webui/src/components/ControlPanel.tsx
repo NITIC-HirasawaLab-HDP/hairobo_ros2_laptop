@@ -1,6 +1,7 @@
 import PowerButton from './controls/power';
 import PidGain from './controls/PidGain';
 import ROSLIB from 'roslib';
+import Cervo from './controls/Cervo';
 
 interface ControlPanelProps {
 	ros: ROSLIB.Ros | null;
@@ -15,6 +16,9 @@ function ControlPanel({ ros }: ControlPanelProps) {
 			</div>
 			<div>
 				<PidGain ros={ros} />
+			</div>
+			<div>
+				<Cervo ros={ros} />
 			</div>
 		</aside>
 	);

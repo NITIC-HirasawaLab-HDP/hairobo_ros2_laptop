@@ -92,17 +92,17 @@ const PidGain: React.FC<PidGainProps> = ({ ros }) => {
 	};
 
 	// 入力フィールドの共通スタイル
-	const inputClass = "w-full px-1 py-2 bg-slate-50 border border-slate-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 text-sm";
-	const labelClass = "text-sm font-bold text-slate-500 mb-1 block text-center";
+	const inputClass = "w-full px-2 py-1 bg-slate-50 border border-slate-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 text-sm";
+	const labelClass = "text-xs font-bold text-slate-500 mb-0.5 block text-center";
 
 	return (
-		<div className="bg-white/80 rounded-2xl border border-gray-300 shadow-lg p-4 w-full max-w-sm mx-auto">
-			<h2 className="text-xl font-semibold text-slate-700 text-center mb-2">PID Gain</h2>
+		<div className="bg-white/80 rounded-2xl border border-gray-300 shadow-lg p-3 w-full max-w-sm mx-auto">
+			<h2 className="text-base font-semibold text-slate-700 text-center mb-1.5">PID Gain</h2>
 
 			{/* Left PID Form */}
-			<div className="mb-4">
-				<h3 className="text-lg font-semibold text-slate-600 mb-2 text-center">Left</h3>
-				<div className="flex gap-2">
+			<div className="mb-2">
+				<h3 className="text-sm font-semibold text-slate-600 mb-1 text-center">Left</h3>
+				<div className="flex gap-1.5">
 					<div className="flex-1">
 						<label className={labelClass}>Kp</label>
 						<input
@@ -140,9 +140,9 @@ const PidGain: React.FC<PidGainProps> = ({ ros }) => {
 			</div>
 
 			{/* Right PID Form */}
-			<div className="mb-6">
-				<h3 className="text-lg font-semibold text-slate-600 mb-2 text-center">Right</h3>
-				<div className="flex gap-2">
+			<div className="mb-2.5">
+				<h3 className="text-sm font-semibold text-slate-600 mb-1 text-center">Right</h3>
+				<div className="flex gap-1.5">
 					<div className="flex-1">
 						<label className={labelClass}>Kp</label>
 						<input
@@ -183,7 +183,7 @@ const PidGain: React.FC<PidGainProps> = ({ ros }) => {
 			<div className="flex justify-center">
 				<button
 					onClick={handleSubmit}
-					className="bg-[#632BDB] hover:bg-[#532AAD] text-white font-bold py-2 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95"
+					className="bg-[#632BDB] hover:bg-[#532AAD] text-white font-bold py-1 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm"
 				>
 					Update
 				</button>

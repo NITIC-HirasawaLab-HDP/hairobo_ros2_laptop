@@ -22,7 +22,7 @@ function App() {
       {/* 画像表示エリア */}
       <main className="flex-1 flex items-center justify-center mb-20">
         {/* max-w-7xl を削除し、w-full px-6 に変更して画面幅を一杯に使う */}
-        <div className="flex items-center gap-6 w-full px-6">
+        <div className="flex items-start gap-6 w-full px-6">
           {/* StatusPanelの幅を確保 */}
           <div className="w-80 shrink-0">
             <StatusPanel ros={ros} setRos={setRos} />
