@@ -3,7 +3,7 @@ import ROSLIB from 'roslib';
 import Status from '../ui/status';
 
 // バッテリー電圧の警告しきい値 (V)
-const BATTERY_THRESHOLD = 13.2;
+const BATTERY_THRESHOLD = 13.0;
 
 interface BatteryProps {
 	ros: ROSLIB.Ros | null;
