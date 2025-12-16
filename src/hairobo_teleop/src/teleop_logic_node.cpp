@@ -58,9 +58,13 @@ class TeleopLogicNode : public rclcpp::Node {
     // 子機ウインチ操作軸
     static constexpr int CHILD_WINCH_AXIS = 7; // 十字キー上下（子機ウインチ操作：上が吐き出し、下が巻き取り）
 
-    // 速度設定
-    static constexpr double MAX_LINEAR_VELOCITY = 1.0;  // 最大直進速度 [m/s]
-    static constexpr double MAX_ANGULAR_VELOCITY = 1.0; // 最大回転速度 [rad/s]
+    // 親機の速度設定
+    static constexpr double PARENT_MAX_LINEAR_VELOCITY = 1.0;  // 親機の最大直進速度 [m/s]
+    static constexpr double PARENT_MAX_ANGULAR_VELOCITY = 1.0; // 親機の最大回転速度 [rad/s]
+
+    // 子機の速度設定
+    static constexpr double CHILD_MAX_LINEAR_VELOCITY = 0.8;  // 子機の最大直進速度 [m/s]
+    static constexpr double CHILD_MAX_ANGULAR_VELOCITY = 0.8; // 子機の最大回転速度 [rad/s]
 
     // ウインチの固定速度設定
     static constexpr double CHILD_WINCH_WINDING_VELOCITY = 0.5;   // 子機ウインチの巻き取り速度
@@ -286,11 +290,15 @@ class TeleopLogicNode : public rclcpp::Node {
         double linear_x = 0.0;
         double angular_z = 0.0;
 
+        // 現在の操作モードに応じて最大速度を選択
+        double max_linear = current_is_parent_ ? PARENT_MAX_LINEAR_VELOCITY : CHILD_MAX_LINEAR_VELOCITY;
+        double max_angular = current_is_parent_ ? PARENT_MAX_ANGULAR_VELOCITY : CHILD_MAX_ANGULAR_VELOCITY;
+
         if (static_cast<int>(msg->axes.size()) > LINEAR_AXIS) {
-            linear_x = msg->axes[LINEAR_AXIS] * MAX_LINEAR_VELOCITY; // 前後移動軸
+            linear_x = msg->axes[LINEAR_AXIS] * max_linear; // 前後移動軸
         }
         if (static_cast<int>(msg->axes.size()) > ANGULAR_AXIS) {
-            angular_z = msg->axes[ANGULAR_AXIS] * MAX_ANGULAR_VELOCITY; // 回転軸
+            angular_z = msg->axes[ANGULAR_AXIS] * max_angular; // 回転軸
         }
 
         // Twistメッセージの作成
