@@ -19,6 +19,7 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 
 	// トピックの参照を保持
 	const servoTopicRef = useRef<ROSLIB.Topic | null>(null);
+	const reconnectIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
 	// ROS接続状態の監視とトピックの設定
 	useEffect(() => {
@@ -26,27 +27,54 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 			return;
 		}
 
-		// トピックの設定
-		const messageType = 'std_msgs/msg/UInt16';
-
-		servoTopicRef.current = new ROSLIB.Topic({
-			ros: ros,
-			name: '/cervo',
-			messageType: messageType
-		});
-		servoTopicRef.current.advertise();
-
-		return () => {
+		// トピックの設定関数
+		const setupTopic = () => {
+			// 既存のトピックがあれば解除
 			if (servoTopicRef.current) {
 				servoTopicRef.current.unadvertise();
+			}
+
+			const messageType = 'std_msgs/msg/UInt16';
+
+			servoTopicRef.current = new ROSLIB.Topic({
+				ros: ros,
+				name: '/cervo',
+				messageType: messageType
+			});
+			servoTopicRef.current.advertise();
+		};
+
+		// 初回のトピック設定
+		setupTopic();
+
+		// 定期的にトピックの状態を確認し、必要に応じて再接続
+		reconnectIntervalRef.current = setInterval(() => {
+			if (ros && ros.isConnected && !servoTopicRef.current) {
+				console.log('Reconnecting servo topic...');
+				setupTopic();
+			}
+		}, 1000);
+
+		return () => {
+			if (reconnectIntervalRef.current) {
+				clearInterval(reconnectIntervalRef.current);
+			}
+			if (servoTopicRef.current) {
+				servoTopicRef.current.unadvertise();
+				servoTopicRef.current = null;
 			}
 		};
 	}, [ros]);
 
 	// サーボ角度をパブリッシュ
 	const publishServoAngle = (value: number) => {
-		if (!ros || !servoTopicRef.current) {
-			console.error('ROS connection not established');
+		if (!ros || !ros.isConnected) {
+			console.warn('ROS connection not established');
+			return;
+		}
+
+		if (!servoTopicRef.current) {
+			console.warn('Servo topic not ready');
 			return;
 		}
 
