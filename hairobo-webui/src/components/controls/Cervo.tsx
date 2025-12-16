@@ -10,7 +10,8 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 	const ORIGIN_VALUE = 2048;
 	const MIN_VALUE = 0;
 	const MAX_VALUE = 4096;
-	const PRESET_VALUE = 1024; // プリセット値（例）
+	const PRESET_VALUE = 2600; // プリセット値（例）
+	const STEP = 50; // 手動調整のステップ値
 
 	// サーボ角度状態
 	const [servoAngle, setServoAngle] = useState(ORIGIN_VALUE);
@@ -103,13 +104,13 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 
 	// 手動調整の増減ボタンのハンドラ
 	const handleIncrement = () => {
-		publishServoAngle(manualValue + 10);
-		setManualValue(Math.min(MAX_VALUE, manualValue + 10));
+		publishServoAngle(manualValue + STEP);
+		setManualValue(Math.min(MAX_VALUE, manualValue + STEP));
 	};
 
 	const handleDecrement = () => {
-		publishServoAngle(manualValue - 10);
-		setManualValue(Math.max(MIN_VALUE, manualValue - 10));
+		publishServoAngle(manualValue - STEP);
+		setManualValue(Math.max(MIN_VALUE, manualValue - STEP));
 	};
 
 	// 手動入力のハンドラ
