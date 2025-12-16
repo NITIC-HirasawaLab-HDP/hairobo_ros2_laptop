@@ -119,12 +119,12 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 	};
 
 	// 共通スタイル
-	const inputClass = "w-full px-2 py-0.5 bg-slate-50 border border-slate-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 text-xs";
-	const buttonClass = "bg-[#632BDB] hover:bg-[#532AAD] text-white font-bold py-0.5 px-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs";
-	const sectionClass = "bg-slate-50 rounded-full border border-slate-200 p-1.5 mb-1.5";
+	const inputClass = "w-full px-3 py-1 bg-white disabled:bg-white border border-slate-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-700 text-xs";
+	const buttonClass = "w-10 h-6 bg-[#632BDB] hover:bg-[#532AAD] text-white font-bold py-0.5 px-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs";
+	const sectionClass = "bg-slate-50 rounded-full border border-slate-200 p-2 mb-4";
 
 	return (
-		<div className="bg-white/80 rounded-2xl border border-gray-300 shadow-lg p-3 w-full max-w-sm mx-auto">
+		<div className="bg-white/80 rounded-2xl border border-gray-300 shadow-lg p-4 w-full max-w-sm mx-auto space-y-4">
 			<h2 className="text-base font-semibold text-slate-700 text-center mb-1.5">Servo Control</h2>
 
 			{/* 現在の値表示 */}
@@ -135,7 +135,7 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 
 			{/* Origin セクション */}
 			<div className={sectionClass}>
-				<div className="flex items-center justify-between gap-2">
+				<div className="flex items-center justify-between gap-3">
 					<div className="text-slate-600 text-xs font-medium flex-shrink-0 w-12">Origin</div>
 					<input
 						type="number"
@@ -151,7 +151,7 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 
 			{/* Preset セクション */}
 			<div className={sectionClass}>
-				<div className="flex items-center justify-between gap-2">
+				<div className="flex items-center justify-between gap-3">
 					<div className="text-slate-600 text-xs font-medium flex-shrink-0 w-12">Preset</div>
 					<input
 						type="number"
@@ -169,10 +169,10 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 
 			{/* 手動調整セクション */}
 			<div className={sectionClass}>
-				<div className="flex items-center justify-between gap-2">
+				<div className="flex items-center justify-between gap-3">
 					<button
 						onClick={handleDecrement}
-						className="w-6 h-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-full shadow transition-all duration-200 active:scale-95 text-xs"
+						className="w-10 h-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-full shadow transition-all duration-200 active:scale-95 text-xs"
 					>
 						-
 					</button>
@@ -187,7 +187,7 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 					/>
 					<button
 						onClick={handleIncrement}
-						className="w-6 h-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-full shadow transition-all duration-200 active:scale-95 text-xs"
+						className="w-10 h-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-full shadow transition-all duration-200 active:scale-95 text-xs"
 					>
 						+
 					</button>
