@@ -11,11 +11,13 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 	const MIN_VALUE = 0;
 	const MAX_VALUE = 4096;
 	const PRESET_VALUE = 2600; // プリセット値（例）
+	const PRESET_VALUE2 = 2700; // Preset2の初期値（例）
 	const STEP = 50; // 手動調整のステップ値
 
 	// サーボ角度状態
 	const [servoAngle, setServoAngle] = useState(ORIGIN_VALUE);
 	const [presetValue, setPresetValue] = useState(PRESET_VALUE);
+	const [presetValue2, setPresetValue2] = useState(PRESET_VALUE2); // Preset2の状態追加
 	const [manualValue, setManualValue] = useState(ORIGIN_VALUE);
 
 	// トピックの参照を保持
@@ -102,6 +104,12 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 		publishServoAngle(value);
 	};
 
+	// Preset2ボタンのハンドラ追加
+	const handleSetPreset2 = () => {
+		const value = Math.max(MIN_VALUE, Math.min(MAX_VALUE, presetValue2));
+		publishServoAngle(value);
+	};
+
 	// 手動調整の増減ボタンのハンドラ
 	const handleIncrement = () => {
 		publishServoAngle(manualValue + STEP);
@@ -129,8 +137,8 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 			<h2 className="text-base font-semibold text-slate-700 text-center mb-1.5">Servo Control</h2>
 
 			{/* 現在の値表示 */}
-			<div className="text-center mb-2">
-				<div className="text-xs text-slate-500">Current Value</div>
+			<div className="flex items-center justify-center mb-2">
+				<div className="text-xs text-slate-500 mr-2">Current Value:</div>
 				<div className="text-lg font-bold text-slate-700">{servoAngle}</div>
 			</div>
 
@@ -168,8 +176,26 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 				</div>
 			</div>
 
-			{/* 手動調整セクション */}
+			{/* Preset2 セクション追加 */}
 			<div className={sectionClass}>
+				<div className="flex items-center justify-between gap-3">
+					<div className="text-slate-600 text-xs font-medium flex-shrink-0 w-12">Preset2</div>
+					<input
+						type="number"
+						min={MIN_VALUE}
+						max={MAX_VALUE}
+						value={presetValue2}
+						onChange={(e) => setPresetValue2(parseInt(e.target.value) || 0)}
+						className={`${inputClass} flex-1`}
+					/>
+					<button onClick={handleSetPreset2} className={`${buttonClass} flex-shrink-0`}>
+						Set
+					</button>
+				</div>
+			</div>
+
+			{/* 手動調整セクション */}
+			<div className="bg-slate-50 rounded-full border border-slate-200 p-2 mb-2">  {/* mb-4 を mb-2 に変更 */}
 				<div className="flex items-center justify-between gap-3">
 					<button
 						onClick={handleDecrement}
