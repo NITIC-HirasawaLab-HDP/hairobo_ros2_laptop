@@ -11,7 +11,7 @@ const Cervo: React.FC<CervoProps> = ({ ros }) => {
 	const MIN_VALUE = 0;
 	const MAX_VALUE = 4096;
 	const PRESET_VALUE = 2600; // プリセット値（例）
-	const PRESET_VALUE2 = 2700; // Preset2の初期値（例）
+	const PRESET_VALUE2 = 2900; // Preset2の初期値（例）
 	const STEP = 50; // 手動調整のステップ値
 
 	// サーボ角度状態

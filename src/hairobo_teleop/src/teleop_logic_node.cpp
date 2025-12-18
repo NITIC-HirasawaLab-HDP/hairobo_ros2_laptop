@@ -60,7 +60,7 @@ class TeleopLogicNode : public rclcpp::Node {
 
     // 親機の速度設定
     static constexpr double PARENT_MAX_LINEAR_VELOCITY = 1.0;  // 親機の最大直進速度 [m/s]
-    static constexpr double PARENT_MAX_ANGULAR_VELOCITY = 1.0; // 親機の最大回転速度 [rad/s]
+    static constexpr double PARENT_MAX_ANGULAR_VELOCITY = 2.0; // 親機の最大回転速度 [rad/s]
 
     // 子機の速度設定
     static constexpr double CHILD_MAX_LINEAR_VELOCITY = 0.8;  // 子機の最大直進速度 [m/s]
@@ -69,8 +69,8 @@ class TeleopLogicNode : public rclcpp::Node {
     // ウインチの固定速度設定
     static constexpr double CHILD_WINCH_WINDING_VELOCITY = 0.8;   // 子機ウインチの巻き取り速度
     static constexpr double CHILD_WINCH_UNWINDING_VELOCITY = 0.3; // 子機ウインチの繰り出し速度
-    static constexpr double LAN_WINCH_WINDING_VELOCITY = 0.5;     // 親機（LAN）ウインチの巻き取り速度
-    static constexpr double LAN_WINCH_UNWINDING_VELOCITY = 0.5;   // 親機（LAN）ウインチの繰り出し速度
+    static constexpr double LAN_WINCH_WINDING_VELOCITY = 10;     // 親機（LAN）ウインチの巻き取り速度
+    static constexpr double LAN_WINCH_UNWINDING_VELOCITY = 10;   // 親機（LAN）ウインチの繰り出し速度
 
     // ===========================================
   public:
