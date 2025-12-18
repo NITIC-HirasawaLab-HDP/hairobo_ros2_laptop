@@ -271,10 +271,10 @@ class TeleopLogicNode : public rclcpp::Node {
                 vel_msg.data = 0.0f;
                 break;
             case WinchState::WINDING:
-                vel_msg.data = static_cast<float>(LAN_WINCH_WINDING_VELOCITY);
+                vel_msg.data = static_cast<float>(-LAN_WINCH_WINDING_VELOCITY);
                 break;
             case WinchState::UNWINDING:
-                vel_msg.data = static_cast<float>(-LAN_WINCH_UNWINDING_VELOCITY);
+                vel_msg.data = static_cast<float>(LAN_WINCH_UNWINDING_VELOCITY);
                 break;
             }
             lan_winch_cmd_pub_->publish(vel_msg);
