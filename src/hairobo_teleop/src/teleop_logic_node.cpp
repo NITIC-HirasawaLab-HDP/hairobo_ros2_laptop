@@ -69,8 +69,8 @@ class TeleopLogicNode : public rclcpp::Node {
     // ウインチの固定速度設定
     static constexpr double CHILD_WINCH_WINDING_VELOCITY = 0.8;   // 子機ウインチの巻き取り速度
     static constexpr double CHILD_WINCH_UNWINDING_VELOCITY = 0.3; // 子機ウインチの繰り出し速度
-    static constexpr double LAN_WINCH_WINDING_VELOCITY = 10;     // 親機（LAN）ウインチの巻き取り速度
-    static constexpr double LAN_WINCH_UNWINDING_VELOCITY = 10;   // 親機（LAN）ウインチの繰り出し速度
+    static constexpr double LAN_WINCH_WINDING_VELOCITY = 30;     // 親機（LAN）ウインチの巻き取り速度
+    static constexpr double LAN_WINCH_UNWINDING_VELOCITY = 30;   // 親機（LAN）ウインチの繰り出し速度
 
     // ===========================================
   public:
