@@ -8,5 +8,5 @@
   
   <!-- RViz2 -->
   <node pkg="rviz2" exec="rviz2" name="rviz2"
-        args="-d $(find-pkg-share hairobo_rviz)/config/ydlidar.rviz" />
+        args="-d $(find-pkg-share hairobo_rviz)/config/slam.rviz" />
 </launch>

@@ -13,12 +13,13 @@
     <let name="webui_dir" value="$(find-pkg-share hairobo_bringup)/../../../../hairobo-webui"/>
 
     <!-- 4. Vite 開発サーバー -->
-    <executable cmd="npm run dev:vite" cwd="$(var webui_dir)" output="screen">
+    <!-- nvm 経由の npm はフルパスで指定する必要があります -->
+    <executable cmd="/home/amuratakamitamu/.nvm/versions/node/v22.18.0/bin/npm run dev:vite" cwd="$(var webui_dir)" output="screen">
         <env name="FORCE_COLOR" value="1" />
     </executable>
 
     <!-- 5. Timer サーバー -->
-    <executable cmd="npm run dev:server" cwd="$(var webui_dir)" output="screen">
+    <executable cmd="/home/amuratakamitamu/.nvm/versions/node/v22.18.0/bin/npm run dev:server" cwd="$(var webui_dir)" output="screen">
         <env name="FORCE_COLOR" value="1" />
     </executable>
 
