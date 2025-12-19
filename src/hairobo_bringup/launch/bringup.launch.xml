@@ -14,12 +14,15 @@
 
     <!-- 4. Vite 開発サーバー -->
     <!-- nvm 経由の npm はフルパスで指定する必要があります -->
+    <!-- PATH に node バイナリのディレクトリを追加して、正しいバージョンの node が使われるようにします -->
     <executable cmd="/home/amuratakamitamu/.nvm/versions/node/v22.18.0/bin/npm run dev:vite" cwd="$(var webui_dir)" output="screen">
+        <env name="PATH" value="/home/amuratakamitamu/.nvm/versions/node/v22.18.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" />
         <env name="FORCE_COLOR" value="1" />
     </executable>
 
     <!-- 5. Timer サーバー -->
     <executable cmd="/home/amuratakamitamu/.nvm/versions/node/v22.18.0/bin/npm run dev:server" cwd="$(var webui_dir)" output="screen">
+        <env name="PATH" value="/home/amuratakamitamu/.nvm/versions/node/v22.18.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" />
         <env name="FORCE_COLOR" value="1" />
     </executable>
 
