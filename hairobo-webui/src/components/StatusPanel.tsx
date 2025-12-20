@@ -6,8 +6,9 @@ import BrushCommand from './status/BrushCommand';
 import WinchLan from './status/WinchLan';
 import WinchChild from './status/WinchChild';
 import Battery from './status/Battery';
-import EncoderLeft from './status/Encoder_L'
-import EncoderRight from './status/Encoder_R'
+import EncoderLeft from './status/Encoder_L';
+import EncoderRight from './status/Encoder_R';
+import GamepadVisualizer from './status/GamepadVisualizer';
 
 type StatusPanelProps = {
 	ros: ROSLIB.Ros | null;
@@ -27,6 +28,7 @@ function StatusPanel({ ros, setRos }: StatusPanelProps) {
 				<Battery ros={ros} />
 				<EncoderLeft ros={ros} />
 				<EncoderRight ros={ros} />
+				<GamepadVisualizer ros={ros} />
 			</div>
 		</aside>
 	);
