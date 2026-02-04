@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ROS2環境のセットアップ
-source /opt/ros/jazzy/setup.bash
+# source /opt/ros/jazzy/setup.bash
 
 # ワークスペースのセットアップ
 source ~/Dev/Hairobo/hairobo_ws/install/setup.bash
