@@ -1,5 +1,4 @@
 #include <geometry_msgs/msg/twist.hpp>
-#include <hairobo_msgs/msg/operation_mode.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 #include <std_msgs/msg/bool.hpp>

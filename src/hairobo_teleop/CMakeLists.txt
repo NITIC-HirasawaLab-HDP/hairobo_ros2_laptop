@@ -11,7 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(hairobo_msgs REQUIRED)
+find_package(hairobo_interfaces REQUIRED)
 
 # Add executable
 add_executable(teleop_logic_node src/teleop_logic_node.cpp)
@@ -22,7 +22,7 @@ ament_target_dependencies(teleop_logic_node
   sensor_msgs
   geometry_msgs
   std_msgs
-  hairobo_msgs
+  hairobo_interfaces
 )
 
 # Install executable

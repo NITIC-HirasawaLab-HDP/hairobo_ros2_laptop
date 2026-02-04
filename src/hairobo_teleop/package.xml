@@ -18,7 +18,7 @@
   <depend>std_msgs</depend>
   
   <!-- Custom message dependencies -->
-  <depend>hairobo_msgs</depend>
+  <depend>hairobo_interfaces</depend>
   
   <!-- Joy package for joystick input -->
   <depend>joy</depend>
